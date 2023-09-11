@@ -37,7 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    # 'Managment',
+    'Management',
     'corsheaders',
     'sslserver',
 
@@ -45,6 +45,7 @@ INSTALLED_APPS = [
 CORS_ORIGIN_ALLOW_ALL = True
 CORS_ALLOW_CREDENTIALS =True
 
+AUTH_USER_MODEL = 'Management.User'
 
 SESSION_COOKIE_SECURE=True
 DCS_SESSION_COOKIE_SAMESITE = 'None'
