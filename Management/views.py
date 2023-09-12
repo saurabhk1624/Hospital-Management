@@ -4,7 +4,7 @@ import re
 
 from django.http import JsonResponse
 
-from .models import Patients, User
+from .models import Patients, User,doctors,Appointments
 
 from django.contrib.auth import authenticate,login
 
@@ -20,103 +20,15 @@ def patientregister(request):
 
         age=data['age']
 
-        email=data['email']
+        gender=data['gender']
 
-        problem=data['problem']
+        email=data['email']
 
         password=data['password']
 
         cpassword=data['confirmpassword']
 
-        doctor=User.objects.get(speciality=problem)
-
-        # Id=doctor.id
-
-        if not name or not email:
-           
-           return JsonResponse({'message':'All fields are required'},status=400)
-     
-        else:
-         
-         if not  re.match(r'\b[\w\.-]+@[\w\.-]+\.\w{2,4}\b',email) :
-           
-           return JsonResponse({'message':'Not valid Email'},status=400)
-         
-         else:
-
-          if Patients.objects.filter(email=email).exists():
-           
-           return JsonResponse({'message':'Email already exist'},status=400)
-          
-          else: 
-           
-           if re.match(r"^(?=.*[\d])(?=.*[A-Z])(?=.*[a-z])(?=.*[@#$])[\w\d@#$]{8,15}$",password) is None:
-             
-             return JsonResponse({'message':'Password denied: Password is not valid'},status=400)
-           
-           else:
-              
-              if cpassword==password:
-               
-               Patients.objects.create_user(name,email,password,age,problem)
-
-               return JsonResponse({'message':'Registration Successful'},status=200)
-              
-              else:
-
-                return JsonResponse({'message':'Confirm Password not same'},status=401)
-              
-    else:
-      
-      return JsonResponse({'message':'Method not allowed'},status=405)
-    
-
-def patientlogin(request):
-  
-  if request.method=='POST':
-     
-     data1=json.loads(request.body)
-
-     email= data1['email']
-
-     password =data1['password']
-
-     user = authenticate(email=email, password=password)
-
-     if user  is not None:
-        
-          login(request,user)
-          
-
-          return JsonResponse({'message':'Logged in'},status=200)
-        
-     else:
-       
-       return JsonResponse({'message':'username or password is  not same'},status=400)
-     
-  else:
-      
-      return JsonResponse({'message':'Method not allowed'},status=405)
-  
-
-
-def staffregister(request):
-
-  if request.method=='POST':
-
-        data2=json.loads(request.body)
-    
-        name=data2['name']
-
-        email=data2['email']
-
-        speciality=data2['speciality']
-
-        password=data2['password']
-
-        cpassword=data2['confirmpassword']
-
-        if not name or not email:
+        if not name or not email or not gender or not age or not password:
            
            return JsonResponse({'message':'All fields are required'},status=400)
      
@@ -142,7 +54,108 @@ def staffregister(request):
               
               if cpassword==password:
                
-               User.objects.create_user(name,email,password,speciality)
+               User.objects.create_user(name,email,password)
+               Id=User.objects.get(email=email)
+
+               Patients.objects.create(name=name,Age=age,gender=gender,user_id=Id.id)
+
+               return JsonResponse({'message':'Registration Successful'},status=200)
+              
+              else:
+
+                return JsonResponse({'message':'Confirm Password not same'},status=401)
+              
+    else:
+      
+      return JsonResponse({'message':'Method not allowed'},status=405)
+    
+
+def patientlogin(request):
+  
+  if request.method=='POST':
+     
+     data1=json.loads(request.body)
+
+     username= data1['username']
+
+     password =data1['password']
+
+     user = authenticate(username=username, password=password)
+
+     if user  is not None:
+        
+          login(request,user)
+          
+
+          return JsonResponse({'message':'Logged in'},status=200)
+        
+     else:
+        
+        if User.objects.filter(username=username).exists():
+       
+         return JsonResponse({'message':'password is  not same'},status=400)
+       
+        else:
+         
+         return JsonResponse({'message':'Username is wrong'},status=400)     
+     
+  else:
+      
+      return JsonResponse({'message':'Method not allowed'},status=405)
+  
+
+
+def staffregister(request):
+
+  if request.method=='POST':
+
+        data2=json.loads(request.body)
+    
+        name=data2['name']
+
+        gender=data2['gender']
+
+        email=data2['email']
+
+        speciality=data2['speciality']
+
+        password=data2['password']
+
+        cpassword=data2['confirmpassword']
+
+        if not name or not email or not gender or not speciality or not password:
+           
+           return JsonResponse({'message':'All fields are required'},status=400)
+     
+        else:
+         
+         if not  re.match(r'\b[\w\.-]+@[\w\.-]+\.\w{2,4}\b',email) :
+           
+           return JsonResponse({'message':'Not valid Email'},status=400)
+         
+         else:
+
+          if User.objects.filter(email=email).exists():
+           
+           return JsonResponse({'message':'Email already exist'},status=400)
+          
+          else: 
+           
+           if re.match(r"^(?=.*[\d])(?=.*[A-Z])(?=.*[a-z])(?=.*[@#$])[\w\d@#$]{8,15}$",password) is None:
+             
+             return JsonResponse({'message':'Password denied: Password is not valid'},status=400)
+           
+           else:
+              
+              if cpassword==password:
+               
+               User.objects.create_user(name,email,password)
+
+               user=User.objects.get(email=email)
+
+               doctors.objects.create(name=name,gender=gender,speciality=speciality,user_id=user.id)
+
+
 
                return JsonResponse({'message':'Registration Successful'},status=200)
               
@@ -160,11 +173,11 @@ def stafflogin(request):
      
      data1=json.loads(request.body)
 
-     email= data1['email']
+     username= data1['username']
 
      password =data1['password']
 
-     user = authenticate(email=email, password=password)
+     user = authenticate(username=username, password=password)
 
      if user  is not None:
         
@@ -172,27 +185,104 @@ def stafflogin(request):
 
           if user.is_superuser:
 
-           return JsonResponse({'message':'Admin'},status=200)
+           return JsonResponse({'message':'Doctor'},status=200)
           
-          else :
+          elif user.is_staff:
 
             return JsonResponse({'message':'Stafflogin'},status=200)
+          
+          else:
+            return JsonResponse({'message':'Not a staff'},status=200)
 
      else:
        
-       return JsonResponse({'message':'username or password is  not same'},status=400)
+       if User.objects.filter(username=username).exists():
+       
+        return JsonResponse({'message':'password is  not same'},status=400)
+       
+       else:
+         
+         return JsonResponse({'message':'Username is wrong'},status=400)
      
    else:
       
       return JsonResponse({'message':'Method not allowed'},status=405)
+
+
+def patient(request):
+
+  if request.method=='GET':
+
+    user=request.user.id
+
+    patientinfo=Patients.objects.filter(id=user).values('name','Age','gender')
+
+    info=list(patientinfo)
+
+    return JsonResponse(info,safe=False)
+
+
+
+def appointment(request):
+
+  if request.method=='POST':
+
+    data3=json.loads(request)
+
+    problem=data3['problem']
+
+    user=request.user.id
+
+    info=Patients.objects.get(user_id=user)
+
+    if not problem:
+
+      return JsonResponse({'message':'Problem is required'},status=400)
+    
+    else:
+      
+      if Patients.objects.filter(user_id=user,new=False).exists():
+       
+        Appointments.objects.create(name=info.name,Age=info.Age,problem=problem,gender=info.gender)
+
+        info.exist=True
+
+        info.save()
+
+        return JsonResponse({'message':'Appointment applied'},status=200)
+      
+      else:
+
+        Appointments.objects.create(name=info.name,Age=info.Age,problem=problem,gender=info.gender,new=True)
+
+        return JsonResponse({'message':'Appointment applied'},status=200)
+      
+  else :
+
+    return JsonResponse({'message':'Method not allowed'},status=405)  
+
+
+
+
+
+
+
+
+
+    
+    
     
 
 
-def appointments(request):
-
-
-  
-
-  return JsonResponse({'message':'Appointment registered successfully'})
-
     
+
+
+
+
+
+
+
+
+
+
+

@@ -3,8 +3,8 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 
 class User(AbstractUser):
-    
-    speciality=models.CharField(max_length=200)
+
+    pass
 
     class Meta:
 
@@ -13,25 +13,54 @@ class User(AbstractUser):
 
 class Patients(models.Model):
 
-    user=models.ForeignKey(User,on_delete=models.DO_NOTHING)
+    user=models.ForeignKey(User,on_delete=models.DO_NOTHING) 
 
-    Name=models.CharField(max_length=200)
+    name=models.CharField(max_length=200)
 
-    Phoneno=models.CharField(max_length=200) 
+    Age=models.PositiveSmallIntegerField()
+
+    exist=models.BooleanField(default=False)
+
+    gender=models.CharField(max_length=20)
+
+    class Meta:
+
+        db_table = 'patient_records'
+
+class doctors(models.Model):
+
+      user=models.ForeignKey(User,on_delete=models.DO_NOTHING)
+
+      name=models.CharField(max_length=200)
+
+      speciality=models.CharField(max_length=200)
+
+      gender=models.CharField(max_length=20)
+
+      class Meta:
+
+        db_table = 'doctors_records'
+
+
+class Appointments(models.Model):
+
+    user=models.ForeignKey(User,on_delete=models.CASCADE)
+
+    name=models.CharField(max_length=200)
 
     Age=models.PositiveSmallIntegerField()
 
     problem=models.CharField(max_length=200)
 
-    email=models.CharField(max_length=200,unique=True)
+    Registerdate=models.DateField(auto_now_add=True)
 
-    password=models.CharField(max_length=200)
+    gender=models.CharField(max_length=20)
 
     new=models.BooleanField(default=False)
 
-    # Gender=models.     
+    
 
     class Meta:
 
-        db_table = 'patient_records'
+        db_table = 'appointment_records'
 
