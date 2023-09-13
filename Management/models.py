@@ -23,9 +23,12 @@ class Patients(models.Model):
 
     gender=models.CharField(max_length=20)
 
+    doctor=models.CharField(max_length=200,null=True)
+
     class Meta:
 
         db_table = 'patient_records'
+
 
 class doctors(models.Model):
 
@@ -52,15 +55,38 @@ class Appointments(models.Model):
 
     problem=models.CharField(max_length=200)
 
-    Registerdate=models.DateField(auto_now_add=True)
+    Registerdate=models.DateField()
 
     gender=models.CharField(max_length=20)
 
     new=models.BooleanField(default=False)
 
-    
+    reject=models.BooleanField(default=False)
+
+    patientapproval=models.BooleanField(default=False)
+
+    docapproval=models.BooleanField(default=False)
+
+    prescription=models.TextField(max_length=400,null=True)
+
+    medicalhistory=models.TextField(max_length=400,null=True)
+
 
     class Meta:
 
         db_table = 'appointment_records'
 
+
+class payment(models.Model) :
+
+    appointment=models.ForeignKey(Appointments,on_delete=models.CASCADE)
+
+    name=models.CharField(max_length=200)
+
+    Age=models.PositiveSmallIntegerField()
+
+    gender=models.CharField(max_length=20)
+
+    issuetime=models.DateField(auto_now_add=True)
+
+    doctorname=models.CharField(max_length=200)

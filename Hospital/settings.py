@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'Management',
     'corsheaders',
     'sslserver',
+    # 'renderpdf',
 
 ]
 CORS_ORIGIN_ALLOW_ALL = True

@@ -10,6 +10,8 @@ from django.contrib.auth import authenticate,login
 
 
 
+# Registartion of patient
+
 def patientregister(request):
 
     if request.method=='POST':
@@ -70,6 +72,9 @@ def patientregister(request):
       return JsonResponse({'message':'Method not allowed'},status=405)
     
 
+
+#  login of patient       
+
 def patientlogin(request):
   
   if request.method=='POST':
@@ -104,6 +109,8 @@ def patientlogin(request):
       return JsonResponse({'message':'Method not allowed'},status=405)
   
 
+
+# Registartion of doctors
 
 def staffregister(request):
 
@@ -166,6 +173,11 @@ def staffregister(request):
   else:
       
       return JsonResponse({'message':'Method not allowed'},status=405)
+  
+
+
+# login of staff 
+ 
     
 def stafflogin(request):
 
@@ -209,6 +221,10 @@ def stafflogin(request):
       return JsonResponse({'message':'Method not allowed'},status=405)
 
 
+
+# details of patient on patient dashboard
+
+
 def patient(request):
 
   if request.method=='GET':
@@ -223,6 +239,9 @@ def patient(request):
 
 
 
+# for Appointment
+
+
 def appointment(request):
 
   if request.method=='POST':
@@ -230,6 +249,10 @@ def appointment(request):
     data3=json.loads(request)
 
     problem=data3['problem']
+
+    medical=data3['medical']
+
+    time=data3['time']
 
     user=request.user.id
 
@@ -243,7 +266,7 @@ def appointment(request):
       
       if Patients.objects.filter(user_id=user,new=False).exists():
        
-        Appointments.objects.create(name=info.name,Age=info.Age,problem=problem,gender=info.gender)
+        Appointments.objects.create(name=info.name,Age=info.Age,problem=problem,gender=info.gender,medicalhistory=medical,time=time)
 
         info.exist=True
 
@@ -260,6 +283,129 @@ def appointment(request):
   else :
 
     return JsonResponse({'message':'Method not allowed'},status=405)  
+  
+
+
+# All Patient record for reception dashboard
+
+
+def showpatient(request):
+
+  if request.method=='GET':
+
+    info=Patients.objects.all().values('user_id','name','Age','Gender')
+
+    patient=list(info)
+
+    return JsonResponse(patient,safe=False)
+  
+  else:
+
+    return JsonResponse({'message':'Method not allowed'},status=405)
+
+
+
+#All doctor record for receiption dashboard
+
+
+def showdoctor(request):
+
+  if request.method=='GET':
+
+    info=doctors.objects.all().values('name','Gender','user_id','speciality')
+
+    doctor=list(info)
+
+    return JsonResponse(doctor,safe=False)
+  
+  else:
+
+    return JsonResponse({'message':'Method not allowed'},status=405)
+  
+
+
+# Patient under each doctor for reception  dashboard
+
+
+def doctorpatients(request):
+
+  if request.method=='GET':
+
+    data=json.loads(request.body)
+
+    doctorid=data['id']
+
+    info=Patients.objects.filter(doctorid=doctorid).values('name','Age','gender')
+
+    patients=list(info)
+
+    return JsonResponse(patients,safe=False)
+  
+  else:
+
+    return JsonResponse({'message':'Method not allowed'},status=405)
+  
+
+
+# patient under each doctor for  Doctor dashboard
+
+
+def doctordash(request):
+
+  if request.method=='GET':
+
+    user=request.user.id
+
+    info=Patients.objects.filter(doctorid=user).values('name','Age','gender')
+
+    patients=list(info)
+
+    return JsonResponse(patients,safe=False)
+  
+  else:
+
+    return JsonResponse({'message':'Method not allowed'},status=405)
+  
+
+
+# individual patient record on doctordashboard for prescription
+
+
+def individualpatient(request):
+
+  if request.method=='GET':
+
+    data=json.loads(request.body)
+
+    patientid=data['patientid']
+
+    info=Patients.objects.filter(id=patientid).values('name','Age','gender')
+
+    patient=list(info)
+
+    return JsonResponse(patient,safe=False)
+  
+  else:
+
+    return JsonResponse({'message':'Method not allowed'},status=405)
+  
+
+
+
+
+
+
+  
+
+
+  
+
+
+  
+
+  
+
+
 
 
 
