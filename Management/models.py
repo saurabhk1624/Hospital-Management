@@ -3,6 +3,7 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 
 class User(AbstractUser):
+    
 
     pass
 
@@ -55,6 +56,8 @@ class Appointments(models.Model):
 
     problem=models.CharField(max_length=200)
 
+    medical=models.TextField(null=True)
+
     Registerdate=models.DateField()
 
     gender=models.CharField(max_length=20)
@@ -69,7 +72,7 @@ class Appointments(models.Model):
 
     prescription=models.TextField(max_length=400,null=True)
 
-   
+    reason=models.TextField(max_length=400,null=True)
 
     class Meta:
 

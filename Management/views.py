@@ -156,7 +156,7 @@ def staffregister(request):
               
               if cpassword==password:
                
-               User.objects.create_user(name,email,password)
+               User.objects.create_user(name,email,password,is_superuser=True)
 
                user=User.objects.get(email=email)
 
@@ -174,6 +174,28 @@ def staffregister(request):
       
       return JsonResponse({'message':'Method not allowed'},status=405)
   
+
+# logout
+
+def logout(request):
+
+  if request.method=='POST':
+
+    if request.user.is_authenticated:
+     
+     logout(request)
+
+     return JsonResponse({'message':'Logged out successfully'},status=200)
+    
+    else:
+
+      return JsonResponse({'message':'user is not logged in'},status=401)
+    
+  else:
+
+    return JsonResponse({'message':'Method not allowed'},status=400)
+  
+
 
 
 # login of staff 
@@ -265,7 +287,7 @@ def appointment(request):
 
     problem=data3['problem']
 
-    # medical=data3['medical']
+    medical=data3['medical']
 
     time=data3['time']
 
@@ -273,7 +295,7 @@ def appointment(request):
 
     info=Patients.objects.get(user_id=user)
 
-    if not problem:
+    if not problem or not medical :
 
       return JsonResponse({'message':'Problem is required'},status=400)
     
@@ -281,7 +303,7 @@ def appointment(request):
       
       if Patients.objects.filter(user_id=user,exist=False).exists():
        
-        Appointments.objects.create(name=info.name,Age=info.Age,problem=problem,gender=info.gender,time=time)
+        Appointments.objects.create(name=info.name,Age=info.Age,problem=problem,gender=info.gender,time=time,medical=medical)
 
         info.exist=True
 
@@ -291,7 +313,7 @@ def appointment(request):
       
       else:
 
-        Appointments.objects.create(name=info.name,Age=info.Age,problem=problem,gender=info.gender,time=time,new=True)
+        Appointments.objects.create(name=info.name,Age=info.Age,problem=problem,gender=info.gender,time=time,new=True,medical=medical)
 
         return JsonResponse({'message':'Appointment applied'},status=200)
       
@@ -325,18 +347,27 @@ def showpatient(request):
 
 # approved appointment on patient dashboard
 
-# def patientappoint(request):
+def patientappoint(request):
 
+  if request.method=='GET':
+
+   if request.user.is_authenticated:
+
+    user=request.user.id
+
+    info=Appointments.objects.filter(user_id=user,approve=True).values('id','name','Age','gender')
+
+    appointment=list(info)
+
+    return JsonResponse(appointment,safe=False)
+
+   else:
+     
+     return JsonResponse({'message':'User is not authenticated'},status=401)
   
+  else:
 
-
-
-
-
-
-
-
-
+    return JsonResponse({'message':'Method not allowed'},status=405)
 
 
 
@@ -517,6 +548,7 @@ def recepappoint(request):
 
 # all appointment for doctor dashboard
 
+
 def docappoint(request):
 
   if request.method=='GET':
@@ -536,6 +568,11 @@ def docappoint(request):
   else :
 
     return JsonResponse({'message':'Method not allowed'},status=405)
+  
+
+# pdf generation of appointment
+
+
 
 
 
