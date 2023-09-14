@@ -182,7 +182,9 @@ def staffregister(request):
 def stafflogin(request):
 
    if request.method=='POST':
-     
+
+    
+      
      data1=json.loads(request.body)
 
      username= data1['username']
@@ -229,6 +231,8 @@ def patient(request):
 
   if request.method=='GET':
 
+   if request.user.is_authenticated:
+
     user=request.user.id
 
     patientinfo=Patients.objects.filter(id=user).values('name','Age','gender')
@@ -236,6 +240,15 @@ def patient(request):
     info=list(patientinfo)
 
     return JsonResponse(info,safe=False)
+  
+   else:
+     
+     return JsonResponse({'message':'Not a Doctor'},status=400) 
+   
+  else :
+
+    return JsonResponse({'message':'Method not allowed'},status=405) 
+  
 
 
 
@@ -246,11 +259,13 @@ def appointment(request):
 
   if request.method=='POST':
 
+   if request.user.is_authenticated: 
+
     data3=json.loads(request)
 
     problem=data3['problem']
 
-    medical=data3['medical']
+    # medical=data3['medical']
 
     time=data3['time']
 
@@ -264,9 +279,9 @@ def appointment(request):
     
     else:
       
-      if Patients.objects.filter(user_id=user,new=False).exists():
+      if Patients.objects.filter(user_id=user,exist=False).exists():
        
-        Appointments.objects.create(name=info.name,Age=info.Age,problem=problem,gender=info.gender,medicalhistory=medical,time=time)
+        Appointments.objects.create(name=info.name,Age=info.Age,problem=problem,gender=info.gender,time=time)
 
         info.exist=True
 
@@ -276,9 +291,13 @@ def appointment(request):
       
       else:
 
-        Appointments.objects.create(name=info.name,Age=info.Age,problem=problem,gender=info.gender,new=True)
+        Appointments.objects.create(name=info.name,Age=info.Age,problem=problem,gender=info.gender,time=time,new=True)
 
         return JsonResponse({'message':'Appointment applied'},status=200)
+      
+   else:
+     
+     return JsonResponse({'message':'Not a Staff'},status=400)    
       
   else :
 
@@ -304,6 +323,22 @@ def showpatient(request):
     return JsonResponse({'message':'Method not allowed'},status=405)
 
 
+# approved appointment on patient dashboard
+
+# def patientappoint(request):
+
+  
+
+
+
+
+
+
+
+
+
+
+
 
 #All doctor record for receiption dashboard
 
@@ -312,11 +347,18 @@ def showdoctor(request):
 
   if request.method=='GET':
 
+   if request.user.is_superuser and request.user.is_authenticated:  
+
     info=doctors.objects.all().values('name','Gender','user_id','speciality')
 
     doctor=list(info)
 
     return JsonResponse(doctor,safe=False)
+   
+   else:
+     
+     return JsonResponse({'message':'Not a Staff'},status=400) 
+   
   
   else:
 
@@ -330,7 +372,9 @@ def showdoctor(request):
 def doctorpatients(request):
 
   if request.method=='GET':
-
+    
+   if request.user.is_superuser and request.user.is_authenticated: 
+   
     data=json.loads(request.body)
 
     doctorid=data['id']
@@ -340,6 +384,11 @@ def doctorpatients(request):
     patients=list(info)
 
     return JsonResponse(patients,safe=False)
+  
+   else:
+     
+     return JsonResponse({'message':'Not a Doctor'},status=400) 
+  
   
   else:
 
@@ -354,6 +403,8 @@ def doctordash(request):
 
   if request.method=='GET':
 
+   if request.user.is_superuser and request.user.is_authenticated: 
+
     user=request.user.id
 
     info=Patients.objects.filter(doctorid=user).values('name','Age','gender')
@@ -361,6 +412,10 @@ def doctordash(request):
     patients=list(info)
 
     return JsonResponse(patients,safe=False)
+   
+   else:
+     
+     return JsonResponse({'message':'Not a Doctor'},status=400)
   
   else:
 
@@ -374,6 +429,8 @@ def doctordash(request):
 def individualpatient(request):
 
   if request.method=='GET':
+   
+   if request.user.is_superuser and request.user.is_authenticated:
 
     data=json.loads(request.body)
 
@@ -384,10 +441,105 @@ def individualpatient(request):
     patient=list(info)
 
     return JsonResponse(patient,safe=False)
+   
+   else:
+     
+     return JsonResponse({'message':'Not a Doctor'},status=400)
   
   else:
 
     return JsonResponse({'message':'Method not allowed'},status=405)
+  
+
+# approval of appointment from receptionist
+
+def recepapproval(request):
+
+  if request.method=='PUT':
+   
+   if request.user.is_staff and request.user.is_authenticated:
+
+    data=json.loads(request.body)
+
+    appointid=data['id']
+
+    Appointments.objects.filter(id=appointid).update(approve=True)
+
+    return JsonResponse({'message':'Appointment approved'},status=200)
+   
+   else:
+     
+     return JsonResponse({'message':'Not a Staff'},status=400) 
+  
+  elif request.method=='DELETE':
+
+   if request.user.is_staff and request.user.is_authenticated:
+    
+    data1=json.loads(request.body)
+
+    appointid=data1['id']
+
+    Appointments.objects.filter(id=appointid).update(reject=True)
+
+    return JsonResponse({'message':'Appointment rejected'},status=200)
+   
+   else:
+     
+     return JsonResponse({'message':'Not a Staff'},status=400) 
+  
+  else:
+
+    return JsonResponse({'message':'Method not allowed'},status=405)
+
+# all appointment for reception dashboard
+
+
+def recepappoint(request):
+
+    if request.method=='GET':
+      
+     if request.user.is_staff and request.user.is_authenticated:
+
+      info=Appointments.objects.filter(new=False).values('id','name','Age','problem','gender')
+
+      patient=list(info)
+
+      return JsonResponse(patient,safe=False)
+     
+     else:
+     
+      return JsonResponse({'message':'Not a Doctor'},status=400)  
+    
+    else :
+
+      return JsonResponse({'message':'Method not allowed'},status=405)
+    
+
+# all appointment for doctor dashboard
+
+def docappoint(request):
+
+  if request.method=='GET':
+
+   if request.user.is_superuser and request.user.is_authenticated:
+
+    info=Appointments.objects.filter(new=True).values('id','name','Age','problem','gender')
+
+    patient=list(info)
+
+    return JsonResponse(patient,safe=False)
+   
+   else:
+     
+     return JsonResponse({'message':'Not a Doctor'},status=400) 
+  
+  else :
+
+    return JsonResponse({'message':'Method not allowed'},status=405)
+
+
+
+
   
 
 

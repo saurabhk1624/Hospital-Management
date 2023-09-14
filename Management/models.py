@@ -69,8 +69,7 @@ class Appointments(models.Model):
 
     prescription=models.TextField(max_length=400,null=True)
 
-    medicalhistory=models.TextField(max_length=400,null=True)
-
+   
 
     class Meta:
 
@@ -89,4 +88,11 @@ class payment(models.Model) :
 
     issuetime=models.DateField(auto_now_add=True)
 
-    doctorname=models.CharField(max_length=200)
+    class Meta:
+
+     db_table ='payment_records'
+
+
+# class medical(models.Model):
+
+#     appointment=models.ForeignKey()
