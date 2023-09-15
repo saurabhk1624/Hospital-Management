@@ -18,6 +18,10 @@ def patientregister(request):
 
         data=json.loads(request.body)
 
+        firstname=data['firstname']
+
+        lastname=data['lastname']
+
         name=data['name']
 
         age=data['age']
@@ -42,31 +46,50 @@ def patientregister(request):
          
          else:
 
-          if User.objects.filter(email=email).exists():
+          if User.objects.filter(username=name).exists():
            
-           return JsonResponse({'message':'Email already exist'},status=400)
+           return JsonResponse({'message':'username already exist'},status=400)
           
           else: 
            
-           if re.match(r"^(?=.*[\d])(?=.*[A-Z])(?=.*[a-z])(?=.*[@#$])[\w\d@#$]{8,15}$",password) is None:
-             
-             return JsonResponse({'message':'Password denied: Password is not valid'},status=400)
            
-           else:
-              
-              if cpassword==password:
-               
-               User.objects.create_user(name,email,password)
-               Id=User.objects.get(email=email)
-
-               Patients.objects.create(name=name,Age=age,gender=gender,user_id=Id.id)
-
-               return JsonResponse({'message':'Registration Successful'},status=200)
-              
+              if re.match(r"^(?=.*[\d])(?=.*[A-Z])(?=.*[a-z])(?=.*[@#$])[\w\d@#$]{8,15}$",password) is None:
+             
+                return JsonResponse({'message':'Password denied: Password is not valid'},status=400)
+           
               else:
-
-                return JsonResponse({'message':'Confirm Password not same'},status=401)
               
+                if cpassword==password:
+
+                 if User.objects.filter(email=email).exists():
+                 
+                  return JsonResponse({'message':'email already exist'},status=400)
+                 
+
+                 else:
+               
+                  User.objects.create_user(name,email,password)
+
+                  Id=User.objects.get(email=email)
+               
+
+                  Patients.objects.create(firstname=firstname,lastname=lastname,Age=age,gender=gender,user_id=Id.id)
+
+                  Id.first_name=firstname
+               
+                  Id.last_name=lastname
+
+                  Id.save()
+
+                  return JsonResponse({'message':'Registration Successful'},status=200)
+                 
+                 
+              
+                else:
+
+                 return JsonResponse({'message':'Confirm Password not same'},status=401)
+               
+           
     else:
       
       return JsonResponse({'message':'Method not allowed'},status=405)
@@ -117,7 +140,11 @@ def staffregister(request):
   if request.method=='POST':
 
         data2=json.loads(request.body)
-    
+
+        firstname=data2['firstname']
+
+        lastname=data2['lastname']
+
         name=data2['name']
 
         gender=data2['gender']
@@ -148,23 +175,34 @@ def staffregister(request):
           
           else: 
            
-           if re.match(r"^(?=.*[\d])(?=.*[A-Z])(?=.*[a-z])(?=.*[@#$])[\w\d@#$]{8,15}$",password) is None:
+            if re.match(r"^(?=.*[\d])(?=.*[A-Z])(?=.*[a-z])(?=.*[@#$])[\w\d@#$]{8,15}$",password) is None:
              
-             return JsonResponse({'message':'Password denied: Password is not valid'},status=400)
+              return JsonResponse({'message':'Password denied: Password is not valid'},status=400)
            
-           else:
+            else:
               
               if cpassword==password:
                
-               User.objects.create_user(name,email,password,is_superuser=True)
+                if User.objects.filter(username=name).exists():
+       
+                    return JsonResponse({'message':'usrname already exist'},status=400)
+       
+                else:
+               
+                  User.objects.create_user(name,email,password,is_superuser=True)
 
-               user=User.objects.get(email=email)
+                  user=User.objects.get(email=email)
 
-               doctors.objects.create(name=name,gender=gender,speciality=speciality,user_id=user.id)
+                  doctors.objects.create(firstname=firstname,lastname=lastname,gender=gender,speciality=speciality,user_id=user.id)
+               
 
+                  user.first_name=firstname
 
+                  user.last_name=lastname
 
-               return JsonResponse({'message':'Registration Successful'},status=200)
+                  user.save()
+
+                  return JsonResponse({'message':'Registration Successful'},status=200)
               
               else:
 
@@ -257,7 +295,7 @@ def patient(request):
 
     user=request.user.id
 
-    patientinfo=Patients.objects.filter(id=user).values('name','Age','gender')
+    patientinfo=Patients.objects.filter(user_id=user).values('firstname','lastname','Age','gender')
 
     info=list(patientinfo)
 
@@ -265,7 +303,7 @@ def patient(request):
   
    else:
      
-     return JsonResponse({'message':'Not a Doctor'},status=400) 
+     return JsonResponse({'message':'Not authenticated'},status=401) 
    
   else :
 
@@ -303,7 +341,7 @@ def appointment(request):
       
       if Patients.objects.filter(user_id=user,exist=False).exists():
        
-        Appointments.objects.create(name=info.name,Age=info.Age,problem=problem,gender=info.gender,time=time,medical=medical)
+        Appointments.objects.create(firstname=info.firstname,lastname=info.lastname,Age=info.Age,problem=problem,gender=info.gender,time=time,medical=medical)
 
         info.exist=True
 
@@ -313,7 +351,7 @@ def appointment(request):
       
       else:
 
-        Appointments.objects.create(name=info.name,Age=info.Age,problem=problem,gender=info.gender,time=time,new=True,medical=medical)
+        Appointments.objects.create(firstname=info.firstname,lastname=info.lastname,Age=info.Age,problem=problem,gender=info.gender,time=time,new=True,medical=medical)
 
         return JsonResponse({'message':'Appointment applied'},status=200)
       
@@ -334,7 +372,7 @@ def showpatient(request):
 
   if request.method=='GET':
 
-    info=Patients.objects.all().values('user_id','name','Age','Gender')
+    info=Patients.objects.all().values('user_id','firstname','lastname','Age','Gender')
 
     patient=list(info)
 
@@ -355,7 +393,7 @@ def patientappoint(request):
 
     user=request.user.id
 
-    info=Appointments.objects.filter(user_id=user,approve=True).values('id','name','Age','gender')
+    info=Appointments.objects.filter(user_id=user,approve=True).values('id','firstname','lastname','Age','gender')
 
     appointment=list(info)
 
@@ -380,7 +418,7 @@ def showdoctor(request):
 
    if request.user.is_superuser and request.user.is_authenticated:  
 
-    info=doctors.objects.all().values('name','Gender','user_id','speciality')
+    info=doctors.objects.all().values('firstname','lastname','Gender','user_id','speciality')
 
     doctor=list(info)
 
@@ -410,7 +448,7 @@ def doctorpatients(request):
 
     doctorid=data['id']
 
-    info=Patients.objects.filter(doctorid=doctorid).values('name','Age','gender')
+    info=Patients.objects.filter(doctorid=doctorid).values('firstname','lastname','Age','gender')
 
     patients=list(info)
 
@@ -438,7 +476,7 @@ def doctordash(request):
 
     user=request.user.id
 
-    info=Patients.objects.filter(doctorid=user).values('name','Age','gender')
+    info=Patients.objects.filter(doctorid=user).values('firstname','lastname','Age','gender')
 
     patients=list(info)
 
@@ -467,7 +505,7 @@ def individualpatient(request):
 
     patientid=data['patientid']
 
-    info=Patients.objects.filter(id=patientid).values('name','Age','gender')
+    info=Patients.objects.filter(id=patientid).values('firstname','lastname','Age','gender')
 
     patient=list(info)
 
@@ -531,7 +569,7 @@ def recepappoint(request):
       
      if request.user.is_staff and request.user.is_authenticated:
 
-      info=Appointments.objects.filter(new=False).values('id','name','Age','problem','gender')
+      info=Appointments.objects.filter(new=False).values('id','firstname','lastname','Age','problem','gender')
 
       patient=list(info)
 
@@ -555,7 +593,7 @@ def docappoint(request):
 
    if request.user.is_superuser and request.user.is_authenticated:
 
-    info=Appointments.objects.filter(new=True).values('id','name','Age','problem','gender')
+    info=Appointments.objects.filter(new=True).values('id','firstname','lastname','Age','problem','gender')
 
     patient=list(info)
 
@@ -571,6 +609,12 @@ def docappoint(request):
   
 
 # pdf generation of appointment
+
+def render_app(request):
+
+  return JsonResponse({'message':'Pdf generated'})
+
+
 
 
 

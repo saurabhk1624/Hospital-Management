@@ -15,4 +15,10 @@ urlpatterns = [
     path('doctorpatients/',views.doctorpatients,name="doctorpatients"),
     path('doctordash/',views.doctordash,name="doctordash"),
     path('individualpatient/',views.individualpatient,name="individualpatient"),
+    path('recepapproval/',views.recepapproval,name="recepapproval"),
+    path('docappoint/',views.docappoint,name="docappoint"),
+    path('recepappoint/',views.recepappoint,name="recepappoint"),
+    path('patientappoint/',views.patientappoint,name="patientappoint"),
+
+
 ]

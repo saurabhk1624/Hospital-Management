@@ -16,7 +16,9 @@ class Patients(models.Model):
 
     user=models.ForeignKey(User,on_delete=models.DO_NOTHING) 
 
-    name=models.CharField(max_length=200)
+    firstname=models.CharField(max_length=200)
+
+    lastname=models.CharField(max_length=200)
 
     Age=models.PositiveSmallIntegerField()
 
@@ -35,7 +37,9 @@ class doctors(models.Model):
 
       user=models.ForeignKey(User,on_delete=models.DO_NOTHING)
 
-      name=models.CharField(max_length=200)
+      firstname=models.CharField(max_length=200)
+
+      lastname=models.CharField(max_length=200)
 
       speciality=models.CharField(max_length=200)
 
@@ -50,7 +54,9 @@ class Appointments(models.Model):
 
     user=models.ForeignKey(User,on_delete=models.CASCADE)
 
-    name=models.CharField(max_length=200)
+    firstname=models.CharField(max_length=200)
+
+    lastname=models.CharField(max_length=200)
 
     Age=models.PositiveSmallIntegerField()
 
