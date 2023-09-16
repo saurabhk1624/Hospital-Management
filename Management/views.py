@@ -8,6 +8,31 @@ from .models import Patients, User,doctors,Appointments
 
 from django.contrib.auth import authenticate,login
 
+from django.http import HttpResponse
+
+from django_renderpdf.views import PDFView
+
+# from reportlab.pdfgen import canvas 
+
+# from django.http import HttpResponse  
+      
+
+
+# def getpdf(request): 
+         
+#         if request.method=='GET':
+
+#          response = HttpResponse(content_type='application/pdf')  
+#          response['Content-Disposition'] = 'attachment; filename="file.pdf"'  
+#          p = canvas.Canvas(response)  
+#          p.setFont("Times-Roman", 55)  
+#          p.drawString(100,700, "Hello, Saurabh.")  
+#          p.showPage()  
+#          p.save()  
+#          return response  
+
+
+
 
 
 # Registartion of patient
@@ -73,7 +98,7 @@ def patientregister(request):
                   Id=User.objects.get(email=email)
                
 
-                  Patients.objects.create(firstname=firstname,lastname=lastname,Age=age,gender=gender,user_id=Id.id)
+                  Patients.objects.create(firstname=firstname,lastname=lastname,Age=age,gender=gender,user_id=Id.id,username=name)
 
                   Id.first_name=firstname
                
@@ -193,7 +218,7 @@ def staffregister(request):
 
                   user=User.objects.get(email=email)
 
-                  doctors.objects.create(firstname=firstname,lastname=lastname,gender=gender,speciality=speciality,user_id=user.id)
+                  doctors.objects.create(firstname=firstname,lastname=lastname,gender=gender,speciality=speciality,user_id=user.id,username=name)
                
 
                   user.first_name=firstname
@@ -295,7 +320,7 @@ def patient(request):
 
     user=request.user.id
 
-    patientinfo=Patients.objects.filter(user_id=user).values('firstname','lastname','Age','gender')
+    patientinfo=Patients.objects.filter(user_id=user).values('username','firstname','lastname','Age','gender')
 
     info=list(patientinfo)
 
@@ -321,7 +346,7 @@ def appointment(request):
 
    if request.user.is_authenticated: 
 
-    data3=json.loads(request)
+    data3=json.loads(request.body)
 
     problem=data3['problem']
 
@@ -341,7 +366,7 @@ def appointment(request):
       
       if Patients.objects.filter(user_id=user,exist=False).exists():
        
-        Appointments.objects.create(firstname=info.firstname,lastname=info.lastname,Age=info.Age,problem=problem,gender=info.gender,time=time,medical=medical)
+        Appointments.objects.create(firstname=info.firstname,lastname=info.lastname,Age=info.Age,problem=problem,gender=info.gender,Registerdate=time,medical=medical,user_id=user)
 
         info.exist=True
 
@@ -351,7 +376,7 @@ def appointment(request):
       
       else:
 
-        Appointments.objects.create(firstname=info.firstname,lastname=info.lastname,Age=info.Age,problem=problem,gender=info.gender,time=time,new=True,medical=medical)
+        Appointments.objects.create(firstname=info.firstname,lastname=info.lastname,Age=info.Age,problem=problem,gender=info.gender,Registerdate=time,new=True,medical=medical,user_id=user)
 
         return JsonResponse({'message':'Appointment applied'},status=200)
       
@@ -372,7 +397,7 @@ def showpatient(request):
 
   if request.method=='GET':
 
-    info=Patients.objects.all().values('user_id','firstname','lastname','Age','Gender')
+    info=Patients.objects.all().values('user_id','firstname','lastname','Age','gender')
 
     patient=list(info)
 
@@ -476,7 +501,7 @@ def doctordash(request):
 
     user=request.user.id
 
-    info=Patients.objects.filter(doctorid=user).values('firstname','lastname','Age','gender')
+    info=Patients.objects.filter(doctorid=user).values('username','firstname','lastname','Age','gender')
 
     patients=list(info)
 
@@ -612,7 +637,21 @@ def docappoint(request):
 
 def render_app(request):
 
-  return JsonResponse({'message':'Pdf generated'})
+    if request.method=='GET':
+   
+     pdf_content = "Hello, this is a PDF generated without templates!"
+
+     response = HttpResponse(content_type='application/pdf')
+
+    #  response['Content-Disposition'] = 'filename="example.pdf"'
+
+    #  response = HttpResponse(pdf. read(), content_type='application/pdf')
+    
+     response['Content-Disposition'] = 'inline;filename=mypdf.pdf'
+    
+     PDFView(response, pdf_content,prompt_download = True)
+
+     return response
 
 
 

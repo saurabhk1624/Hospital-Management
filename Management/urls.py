@@ -19,6 +19,8 @@ urlpatterns = [
     path('docappoint/',views.docappoint,name="docappoint"),
     path('recepappoint/',views.recepappoint,name="recepappoint"),
     path('patientappoint/',views.patientappoint,name="patientappoint"),
+    path('render_app/',views.render_app,name="render_app"),
+    path('logout/',views.logout,name="logout"),
 
 
 ]

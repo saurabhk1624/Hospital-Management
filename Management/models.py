@@ -16,6 +16,8 @@ class Patients(models.Model):
 
     user=models.ForeignKey(User,on_delete=models.DO_NOTHING) 
 
+    username=models.CharField(max_length=200)
+
     firstname=models.CharField(max_length=200)
 
     lastname=models.CharField(max_length=200)
@@ -36,6 +38,8 @@ class Patients(models.Model):
 class doctors(models.Model):
 
       user=models.ForeignKey(User,on_delete=models.DO_NOTHING)
+
+      username=models.CharField(max_length=200)
 
       firstname=models.CharField(max_length=200)
 
