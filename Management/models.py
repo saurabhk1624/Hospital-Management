@@ -34,8 +34,18 @@ class Patients(models.Model):
 
         db_table = 'patient_records'
 
+class Speciality(models.Model):
+
+    department=models.CharField(max_length=200)  
+
+    class Meta:
+
+        db_table ='department_names'      
+
 
 class doctors(models.Model):
+      
+    #   special=models.ForeignKey(Speciality,on_delete=models.CASCADE)
 
       user=models.ForeignKey(User,on_delete=models.DO_NOTHING)
 

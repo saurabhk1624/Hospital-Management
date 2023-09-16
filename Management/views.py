@@ -4,7 +4,7 @@ import re
 
 from django.http import JsonResponse
 
-from .models import Patients, User,doctors,Appointments
+from .models import Patients, Speciality, User,doctors,Appointments
 
 from django.contrib.auth import authenticate,login
 
@@ -66,6 +66,7 @@ def patientregister(request):
         else:
          
          if not  re.match(r'\b[\w\.-]+@[\w\.-]+\.\w{2,4}\b',email) :
+          
            
            return JsonResponse({'message':'Not valid Email'},status=400)
          
@@ -119,7 +120,21 @@ def patientregister(request):
       
       return JsonResponse({'message':'Method not allowed'},status=405)
     
+# doctor department
 
+def department(request):
+
+  if request.method=='GET':
+
+    info=Speciality.objects.all().values('id','department')
+
+    dept=list(info)
+
+    return JsonResponse(dept,safe=False)
+  
+  else :
+
+    return JsonResponse({'message':'Method not allowed'},status=405)
 
 #  login of patient       
 
@@ -354,6 +369,8 @@ def appointment(request):
 
     time=data3['time']
 
+    doctor=data3['doctor']
+
     user=request.user.id
 
     info=Patients.objects.get(user_id=user)
@@ -418,7 +435,7 @@ def patientappoint(request):
 
     user=request.user.id
 
-    info=Appointments.objects.filter(user_id=user,approve=True).values('id','firstname','lastname','Age','gender')
+    info=Appointments.objects.filter(user_id=user,patientapproval=True).values('id','firstname','lastname','Age','gender')
 
     appointment=list(info)
 
@@ -441,9 +458,9 @@ def showdoctor(request):
 
   if request.method=='GET':
 
-   if request.user.is_superuser and request.user.is_authenticated:  
+   if request.user.is_staff and request.user.is_authenticated:  
 
-    info=doctors.objects.all().values('firstname','lastname','Gender','user_id','speciality')
+    info=doctors.objects.all().values('firstname','lastname','gender','user_id','speciality')
 
     doctor=list(info)
 
@@ -646,10 +663,10 @@ def render_app(request):
     #  response['Content-Disposition'] = 'filename="example.pdf"'
 
     #  response = HttpResponse(pdf. read(), content_type='application/pdf')
-    
+
      response['Content-Disposition'] = 'inline;filename=mypdf.pdf'
     
-     PDFView(response, pdf_content,prompt_download = True)
+     PDFView(response, pdf_content) 
 
      return response
 

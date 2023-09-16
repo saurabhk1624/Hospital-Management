@@ -21,6 +21,10 @@ urlpatterns = [
     path('patientappoint/',views.patientappoint,name="patientappoint"),
     path('render_app/',views.render_app,name="render_app"),
     path('logout/',views.logout,name="logout"),
+    # path('getpdf/',views.getpdf,name="getpdf"),
+    path('department/',views.department,name="department"),
+
+
 
 
 ]
