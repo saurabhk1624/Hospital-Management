@@ -4,6 +4,8 @@ import re
 
 from django.http import JsonResponse
 
+from django.shortcuts import render
+
 from .models import Patients, Speciality, User,doctors,Appointments
 
 from django.contrib.auth import authenticate,login
@@ -11,6 +13,10 @@ from django.contrib.auth import authenticate,login
 from django.http import HttpResponse
 
 from django_renderpdf.views import PDFView
+
+from weasyprint import HTML, CSS
+
+from django.shortcuts import HttpResponse
 
 # from reportlab.pdfgen import canvas 
 
@@ -126,7 +132,7 @@ def department(request):
 
   if request.method=='GET':
 
-    info=Speciality.objects.all().values('id','department')
+    info=Speciality.objects.filter(Status=False).values('id','department')
 
     dept=list(info)
 
@@ -233,7 +239,7 @@ def staffregister(request):
 
                   user=User.objects.get(email=email)
 
-                  doctors.objects.create(firstname=firstname,lastname=lastname,gender=gender,speciality=speciality,user_id=user.id,username=name)
+                  doctors.objects.create(firstname=firstname,lastname=lastname,gender=gender,special_id=speciality,user_id=user.id,username=name)
                
 
                   user.first_name=firstname
@@ -369,7 +375,7 @@ def appointment(request):
 
     time=data3['time']
 
-    doctor=data3['doctor']
+    # doctor=data3['doctor']
 
     user=request.user.id
 
@@ -490,7 +496,7 @@ def doctorpatients(request):
 
     doctorid=data['id']
 
-    info=Patients.objects.filter(doctorid=doctorid).values('firstname','lastname','Age','gender')
+    info=Patients.objects.filter(doctor_id=doctorid).values('firstname','lastname','Age','gender')
 
     patients=list(info)
 
@@ -518,7 +524,7 @@ def doctordash(request):
 
     user=request.user.id
 
-    info=Patients.objects.filter(doctorid=user).values('username','firstname','lastname','Age','gender')
+    info=Patients.objects.filter(doctor_id=user).values('username','firstname','lastname','Age','gender')
 
     patients=list(info)
 
@@ -655,18 +661,32 @@ def docappoint(request):
 def render_app(request):
 
     if request.method=='GET':
-   
-     pdf_content = "Hello, this is a PDF generated without templates!"
+     
+     db=json.loads(request.body)
 
+     appointid=db['id']
+
+     info=Appointments.objects.get(id=appointid)
+     
+     context={
+       'Appointment no':info.id,
+       'First name':info.firstname,
+       'Last name':info.lastname,
+       'Age':info.Age,
+       'Problem':info.problem
+     }
+
+     html_template = 'Management/Appoint.html'  
+
+   
+     html_string = render(request, html_template, context)
+
+    
      response = HttpResponse(content_type='application/pdf')
 
-    #  response['Content-Disposition'] = 'filename="example.pdf"'
+     response['Content-Disposition'] = 'filename="my_pdf.pdf"'
 
-    #  response = HttpResponse(pdf. read(), content_type='application/pdf')
-
-     response['Content-Disposition'] = 'inline;filename=mypdf.pdf'
-    
-     PDFView(response, pdf_content) 
+     HTML(string=html_string).write_pdf(response)
 
      return response
 
@@ -677,6 +697,41 @@ def render_app(request):
 
 
 
+
+
+
+
+
+
+
+
+
+     
+    # #  rendered_template = render(request, 'appoint.html', context)
+    #  response = HttpResponse(content_type='application/pdf')
+
+    #  response['Content-Disposition'] = 'filename="example.pdf"'
+
+    
+    #  response = PDFView.render_to_response('appoint.html', context)
+
+     
+    #  return response
+
+# def download_my_pdf (request, template="appoint.html"):
+    
+#    if request.method=='GET':
+
+#     pdf_html = render_to_string(template, locals())
+
+#     pdf_file = HTML(string=pdf_html).write_pdf(stylesheets=[CSS(string='@page { size: letter portrait; margin: 1cm }')])
+
+#     response = HttpResponse(pdf_file, content_type='application/pdf')
+
+#     response['Content-Disposition'] = 'filename="mypdf.pdf"'
+
+#     return response
+
   
 
 
@@ -712,6 +767,22 @@ def render_app(request):
     
 
 
+
+
+
+# pdf_content = "Hello, this is a PDF generated without templates!"
+
+#      response = HttpResponse(content_type='application/pdf')
+
+#     #  response['Content-Disposition'] = 'filename="example.pdf"'
+
+#     #  response = HttpResponse(pdf. read(), content_type='application/pdf')
+
+#      response['Content-Disposition'] = 'inline;filename=mypdf.pdf'
+    
+#      PDFView(response, pdf_content) 
+
+#      return response
 
 
 

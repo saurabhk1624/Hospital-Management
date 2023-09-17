@@ -12,9 +12,42 @@ class User(AbstractUser):
         db_table = 'staff_records'
 
 
+
+
+class Speciality(models.Model):
+
+    department=models.CharField(max_length=200) 
+
+    Status=models.BooleanField(default=False) 
+
+    class Meta:
+
+        db_table ='department_names'      
+
+
+class doctors(models.Model):
+      
+      special=models.ForeignKey(Speciality,on_delete=models.DO_NOTHING)
+
+      user=models.ForeignKey(User,on_delete=models.DO_NOTHING)
+
+      username=models.CharField(max_length=200)
+
+      firstname=models.CharField(max_length=200)
+
+      lastname=models.CharField(max_length=200)
+
+      gender=models.CharField(max_length=20)
+
+      class Meta:
+
+        db_table = 'doctors_records'
+
 class Patients(models.Model):
 
     user=models.ForeignKey(User,on_delete=models.DO_NOTHING) 
+    
+    doctor=models.ForeignKey(doctors,on_delete=models.DO_NOTHING,null=True)
 
     username=models.CharField(max_length=200)
 
@@ -28,40 +61,11 @@ class Patients(models.Model):
 
     gender=models.CharField(max_length=20)
 
-    doctor=models.CharField(max_length=200,null=True)
+    # doctor=models.CharField(max_length=200,null=True)
 
     class Meta:
 
-        db_table = 'patient_records'
-
-class Speciality(models.Model):
-
-    department=models.CharField(max_length=200)  
-
-    class Meta:
-
-        db_table ='department_names'      
-
-
-class doctors(models.Model):
-      
-    #   special=models.ForeignKey(Speciality,on_delete=models.CASCADE)
-
-      user=models.ForeignKey(User,on_delete=models.DO_NOTHING)
-
-      username=models.CharField(max_length=200)
-
-      firstname=models.CharField(max_length=200)
-
-      lastname=models.CharField(max_length=200)
-
-      speciality=models.CharField(max_length=200)
-
-      gender=models.CharField(max_length=20)
-
-      class Meta:
-
-        db_table = 'doctors_records'
+        db_table = 'patient_records'        
 
 
 class Appointments(models.Model):
