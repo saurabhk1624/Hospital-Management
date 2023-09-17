@@ -22,12 +22,27 @@ class Speciality(models.Model):
 
     class Meta:
 
-        db_table ='department_names'      
+        db_table ='department_names'  
+
+
+
+class time(models.Model):
+     
+     Time=models.TextField()
+     status=models.BooleanField(default=False)
+     capacity=models.PositiveSmallIntegerField()
+
+     class Meta:
+         
+         db_table='schedule_time'
+
 
 
 class doctors(models.Model):
       
       special=models.ForeignKey(Speciality,on_delete=models.DO_NOTHING)
+
+      time=models.ForeignKey(time,on_delete=models.DO_NOTHING)
 
       user=models.ForeignKey(User,on_delete=models.DO_NOTHING)
 

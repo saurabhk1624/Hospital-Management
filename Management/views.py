@@ -1,10 +1,12 @@
 import json
+import pickle
 
 import re
 
 from django.http import JsonResponse
 
-from django.shortcuts import render
+
+from django.shortcuts import render, render_to_response
 
 from .models import Patients, Speciality, User,doctors,Appointments
 
@@ -13,15 +15,6 @@ from django.contrib.auth import authenticate,login
 from django.http import HttpResponse
 
 from django_renderpdf.views import PDFView
-
-from weasyprint import HTML, CSS
-
-from django.shortcuts import HttpResponse
-
-# from reportlab.pdfgen import canvas 
-
-# from django.http import HttpResponse  
-      
 
 
 # def getpdf(request): 
@@ -197,7 +190,7 @@ def staffregister(request):
 
         email=data2['email']
 
-        speciality=data2['speciality']
+        speciality=data2['department']
 
         password=data2['password']
 
@@ -356,6 +349,30 @@ def patient(request):
     return JsonResponse({'message':'Method not allowed'},status=405) 
   
 
+# doctor detail for doc dashboard
+def doctor(request):
+
+  if request.method=='GET':
+
+   if request.user.is_authenticated and request.user.is_superuser:
+
+    user=request.user.id
+
+    patientinfo=doctors.objects.filter(user_id=user).values('username','firstname','lastname','gender')
+
+    info=list(patientinfo)
+
+    return JsonResponse(info,safe=False)
+  
+   else:
+     
+     return JsonResponse({'message':'Not authenticated'},status=401) 
+   
+  else :
+
+    return JsonResponse({'message':'Method not allowed'},status=405) 
+  
+
 
 
 # for Appointment
@@ -441,7 +458,7 @@ def patientappoint(request):
 
     user=request.user.id
 
-    info=Appointments.objects.filter(user_id=user,patientapproval=True).values('id','firstname','lastname','Age','gender')
+    info=Appointments.objects.filter(user=user,patientapproval=True).values('id','firstname','lastname','Age','gender')
 
     appointment=list(info)
 
@@ -668,28 +685,21 @@ def render_app(request):
 
      info=Appointments.objects.get(id=appointid)
      
-     context={
+     data={
        'Appointment no':info.id,
        'First name':info.firstname,
        'Last name':info.lastname,
        'Age':info.Age,
        'Problem':info.problem
-     }
+       }
+       
+    return
 
-     html_template = 'Management/Appoint.html'  
-
+     
    
-     html_string = render(request, html_template, context)
+    
 
     
-     response = HttpResponse(content_type='application/pdf')
-
-     response['Content-Disposition'] = 'filename="my_pdf.pdf"'
-
-     HTML(string=html_string).write_pdf(response)
-
-     return response
-
 
 
 
@@ -707,30 +717,9 @@ def render_app(request):
 
 
      
-    # #  rendered_template = render(request, 'appoint.html', context)
-    #  response = HttpResponse(content_type='application/pdf')
+  
 
-    #  response['Content-Disposition'] = 'filename="example.pdf"'
 
-    
-    #  response = PDFView.render_to_response('appoint.html', context)
-
-     
-    #  return response
-
-# def download_my_pdf (request, template="appoint.html"):
-    
-#    if request.method=='GET':
-
-#     pdf_html = render_to_string(template, locals())
-
-#     pdf_file = HTML(string=pdf_html).write_pdf(stylesheets=[CSS(string='@page { size: letter portrait; margin: 1cm }')])
-
-#     response = HttpResponse(pdf_file, content_type='application/pdf')
-
-#     response['Content-Disposition'] = 'filename="mypdf.pdf"'
-
-#     return response
 
   
 
