@@ -24,6 +24,7 @@ urlpatterns = [
     # path('getpdf/',views.getpdf,name="getpdf"),
     path('department/',views.department,name="department"),
     path('doctor/',views.doctor,name="doctor"),
+    path('schedule/',views.schedule,name="schedule"),
 
 
 

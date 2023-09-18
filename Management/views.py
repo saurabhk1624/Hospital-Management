@@ -1,20 +1,24 @@
+from io import BytesIO, StringIO
 import json
+
 import pickle
 
 import re
 
-from django.http import JsonResponse
-
+from django.http import FileResponse, JsonResponse
 
 from django.shortcuts import render, render_to_response
 
-from .models import Patients, Speciality, User,doctors,Appointments
+from .models import Patients, Speciality, User,doctors,Appointments,time
 
 from django.contrib.auth import authenticate,login
 
 from django.http import HttpResponse
 
-from django_renderpdf.views import PDFView
+from django_renderpdf.views import PDFView,helpers
+
+# from django_renderpdf.response import PDFResponse
+
 
 
 # def getpdf(request): 
@@ -119,6 +123,8 @@ def patientregister(request):
       
       return JsonResponse({'message':'Method not allowed'},status=405)
     
+
+    
 # doctor department
 
 def department(request):
@@ -134,6 +140,8 @@ def department(request):
   else :
 
     return JsonResponse({'message':'Method not allowed'},status=405)
+  
+
 
 #  login of patient       
 
@@ -373,6 +381,22 @@ def doctor(request):
     return JsonResponse({'message':'Method not allowed'},status=405) 
   
 
+# schedule time
+def schedule(request):
+
+  if request.method=='GET':
+
+    info=time.objects.filter(status=False,capacity__lte=20).values('id','Time')
+
+    data=list(info)
+
+    return JsonResponse(data,safe=False)
+  
+  else :
+
+    return JsonResponse({'message':'Method not allowed'},status=405)
+
+
 
 
 # for Appointment
@@ -392,7 +416,7 @@ def appointment(request):
 
     time=data3['time']
 
-    # doctor=data3['doctor']
+    doctor=data3['doctor']
 
     user=request.user.id
 
@@ -509,9 +533,7 @@ def doctorpatients(request):
     
    if request.user.is_superuser and request.user.is_authenticated: 
    
-    data=json.loads(request.body)
-
-    doctorid=data['id']
+    doctorid=request.GET.get('id')
 
     info=Patients.objects.filter(doctor_id=doctorid).values('firstname','lastname','Age','gender')
 
@@ -566,9 +588,9 @@ def individualpatient(request):
    
    if request.user.is_superuser and request.user.is_authenticated:
 
-    data=json.loads(request.body)
+  
 
-    patientid=data['patientid']
+    patientid=request.GET.get('patientid')
 
     info=Patients.objects.filter(id=patientid).values('firstname','lastname','Age','gender')
 
@@ -679,9 +701,9 @@ def render_app(request):
 
     if request.method=='GET':
      
-     db=json.loads(request.body)
+    #  db=json.loads(request.body)
 
-     appointid=db['id']
+     appointid=request.GET.get('id')
 
      info=Appointments.objects.get(id=appointid)
      
@@ -692,8 +714,16 @@ def render_app(request):
        'Age':info.Age,
        'Problem':info.problem
        }
-       
-    return
+     p=pickle.dumps(data)
+     pdf_file = BytesIO()
+     helpers.render_pdf('Management/Appoint.html',pdf_file)
+     response = HttpResponse( pdf_file.write(),content_type='application/pdf')
+
+     response['Content-Disposition'] = 'filename="my_pdf.pdf"'
+
+     return response
+
+
 
      
    
@@ -735,7 +765,10 @@ def render_app(request):
 
 
   
-
+ #  html_string = render_to_string('Management/Appoint.html', data)
+    #  p=pickle.dumps(data) 
+    #  p=BytesIO()
+    #  pdf=  helpers.render_pdf('Management/Appoint.html',p,data)
   
 
 
