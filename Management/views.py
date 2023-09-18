@@ -17,7 +17,7 @@ from django.http import HttpResponse
 
 from django_renderpdf.views import PDFView,helpers
 
-# from django_renderpdf.response import PDFResponse
+from django.template.loader import render_to_string
 
 
 
@@ -701,26 +701,29 @@ def render_app(request):
 
     if request.method=='GET':
      
-    #  db=json.loads(request.body)
-
      appointid=request.GET.get('id')
 
      info=Appointments.objects.get(id=appointid)
-     
+    #  docid=info.doctor_id
+    #  doc=doctors.objects.get(id=docid)
      data={
-       'Appointment no':info.id,
-       'First name':info.firstname,
-       'Last name':info.lastname,
+       'Appointmentno':info.id,
+       'Firstname':info.firstname,
+       'Lastname':info.lastname,
        'Age':info.Age,
-       'Problem':info.problem
+       'Problem':info.problem,
+       'Gender':info.gender
        }
-     p=pickle.dumps(data)
-     pdf_file = BytesIO()
-     helpers.render_pdf('Management/Appoint.html',pdf_file)
-     response = HttpResponse( pdf_file.write(),content_type='application/pdf')
-
+    #  p=pickle.dumps(data)
+     p=render_to_string('Management/Appoint.html',context=data)
+    #  pk=str(data)
+    #  print(data)
+    #  pdf_file = StringIO()
+    #  helpers.render_pdf('Management/Appoint.html',pdf_file,data)
+     response = HttpResponse(content_type='application/templates/pdf')
+    #  response.write(p)
      response['Content-Disposition'] = 'filename="my_pdf.pdf"'
-
+     response.write(p)
      return response
 
 
