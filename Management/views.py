@@ -419,8 +419,9 @@ def appointment(request):
     doctor=data3['doctor']
 
     user=request.user.id
+    print(user)
 
-    info=Patients.objects.get(user_id=user)
+    info=Patients.objects.get(user=user)
 
     if not problem or not medical :
 
@@ -428,9 +429,11 @@ def appointment(request):
     
     else:
       
-      if Patients.objects.filter(user_id=user,exist=False).exists():
+      if Patients.objects.filter(user=user,exist=False).exists():
        
-        Appointments.objects.create(firstname=info.firstname,lastname=info.lastname,Age=info.Age,problem=problem,gender=info.gender,Registerdate=time,medical=medical,user_id=user,doctor=doctor)
+        Appointments.objects.create(firstname=info.firstname,lastname=info.lastname,Age=info.Age,problem=problem,gender=info.gender,Registerdate=time,medical=medical,patient_id=info.id)
+        info.doctor_id=doctor
+        
 
         info.exist=True
 
@@ -440,7 +443,9 @@ def appointment(request):
       
       else:
 
-        Appointments.objects.create(firstname=info.firstname,lastname=info.lastname,Age=info.Age,problem=problem,gender=info.gender,Registerdate=time,new=True,medical=medical,user_id=user,doctor=doctor)
+        Appointments.objects.create(firstname=info.firstname,lastname=info.lastname,Age=info.Age,problem=problem,gender=info.gender,Registerdate=time,new=True,medical=medical,patient_id=info.id)
+        info.doctor_id=doctor
+        info.save()
 
         return JsonResponse({'message':'Appointment applied'},status=200)
       
@@ -562,8 +567,9 @@ def doctordash(request):
    if request.user.is_superuser and request.user.is_authenticated: 
 
     user=request.user.id
-
-    info=Patients.objects.filter(doctor_id=user).values('username','firstname','lastname','Age','gender')
+    print(user)
+    data=doctors.objects.filter(user=user)
+    info=Patients.objects.filter(doctor=data.id).values('username','firstname','lastname','Age','gender')
 
     patients=list(info)
 
