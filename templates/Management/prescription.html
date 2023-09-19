@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Doctor's Prescription</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            animation: fadeIn 1s ease;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .patient-info, .doctor-info {
+            padding: 20px;
+            background-color: #f9f9f9;
+            margin-bottom: 20px;
+            border-radius: 5px;
+        }
+        .doctor-info {
+            text-align: right;
+        }
+        .prescription {
+            margin-top: 30px;
+        }
+        .signature {
+            text-align: right;
+            margin-top: 50px;
+        }
+        h1 {
+            color: #0074D9;
+        }
+        h2 {
+            color: #333;
+        }
+        p {
+            line-height: 1.5;
+        }
+        
+      
+        
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Doctor's Prescription</h1>
+        </div>
+        <div class="patient-info">
+            <h2>Patient Information</h2>
+            <p><strong>Appointment no:</strong> {{Appointmentno}}</p>
+            <p><strong>First Name:</strong> {{Firstname}}</p>
+            <p><strong>Last Name:</strong> {{Lastname}}</p>
+            <p><strong>Gender:</strong> {{Gender}}</p>
+            <p><strong>Age:</strong> {{Age}}</p>
+            <p><strong>Medical Issue:</strong> {{Problem}}</p>
+        </div>
+        <div class="doctor-info">
+            <h2>Doctor's Information</h2>
+            <p><strong>Doctor's Name:</strong> {DoctorName}</p>
+           
+        </div>
+        <div class="prescription">
+            <h2>Prescription</h2>
+            <p>{{prescription}}</p>
+        </div>
+        
+    </div>
+</body>
+</html>

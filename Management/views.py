@@ -430,7 +430,7 @@ def appointment(request):
       
       if Patients.objects.filter(user_id=user,exist=False).exists():
        
-        Appointments.objects.create(firstname=info.firstname,lastname=info.lastname,Age=info.Age,problem=problem,gender=info.gender,Registerdate=time,medical=medical,user_id=user)
+        Appointments.objects.create(firstname=info.firstname,lastname=info.lastname,Age=info.Age,problem=problem,gender=info.gender,Registerdate=time,medical=medical,user_id=user,doctor=doctor)
 
         info.exist=True
 
@@ -440,7 +440,7 @@ def appointment(request):
       
       else:
 
-        Appointments.objects.create(firstname=info.firstname,lastname=info.lastname,Age=info.Age,problem=problem,gender=info.gender,Registerdate=time,new=True,medical=medical,user_id=user)
+        Appointments.objects.create(firstname=info.firstname,lastname=info.lastname,Age=info.Age,problem=problem,gender=info.gender,Registerdate=time,new=True,medical=medical,user_id=user,doctor=doctor)
 
         return JsonResponse({'message':'Appointment applied'},status=200)
       
@@ -702,17 +702,27 @@ def render_app(request):
     if request.method=='GET':
      
      appointid=request.GET.get('id')
-
+     
      info=Appointments.objects.get(id=appointid)
-    #  docid=info.doctor_id
-    #  doc=doctors.objects.get(id=docid)
+      
+    #  print(info.patient)
+    #  loads=Patients.objects.get(id=info.patient_id)
+
+
+    #  Doc=doctors.objects.get(id=loads.doctor)
+
+
+    #  
+
      data={
        'Appointmentno':info.id,
        'Firstname':info.firstname,
        'Lastname':info.lastname,
        'Age':info.Age,
        'Problem':info.problem,
-       'Gender':info.gender
+       'Gender':info.gender,
+      #  'Doctor':Doc.firstname
+
        }
     #  p=pickle.dumps(data)
      p=render_to_string('Management/Appoint.html',context=data)
@@ -722,13 +732,64 @@ def render_app(request):
     #  helpers.render_pdf('Management/Appoint.html',pdf_file,data)
      response = HttpResponse(content_type='application/templates/pdf')
     #  response.write(p)
-     response['Content-Disposition'] = 'filename="my_pdf.pdf"'
+     response['Content-Disposition'] = 'filename="Appointment.pdf"'
      response.write(p)
      return response
 
+def  prescription(request):
 
+  if request.method=='PUT':
+    
+    if request.user.is_authenticated and request.user.is_superuser:
 
+     loads=json.loads(request.body)
+
+     id=loads['id']
+
+     prescription=loads['prescription']
+
+     Appointments.objects.filter(id=id).update(prescription=prescription)
+
+     return JsonResponse({'message':'Prescription added'},status=200)
      
+    else :
+
+      return JsonResponse({'message':'User is not doctor'},status=403)
+    
+  else:
+
+    return JsonResponse({'message':'Method not allowed'},status=405)
+
+
+def prescriptionpdf(request):
+
+  if request.method=='GET':
+   
+   if request.user.is_authenticated:
+     
+     id=request.GET.get('id')
+
+     info=Appointments.objects.get(id=id)
+      
+     data={
+       'Appointmentno':info.id,
+       'Firstname':info.firstname,
+       'Lastname':info.lastname,
+       'Age':info.Age,
+       'Problem':info.problem,
+       'Gender':info.gender,
+       'prescription':info.prescription
+       }
+     
+     p=render_to_string('Management/prescription.html',context=data)
+     
+     response = HttpResponse(content_type='application/templates/pdf')
+    
+     response['Content-Disposition'] = 'filename="Prescription.pdf"'
+
+     response.write(p)
+
+     return response
    
     
 
@@ -768,52 +829,4 @@ def render_app(request):
 
 
   
- #  html_string = render_to_string('Management/Appoint.html', data)
-    #  p=pickle.dumps(data) 
-    #  p=BytesIO()
-    #  pdf=  helpers.render_pdf('Management/Appoint.html',p,data)
-  
-
-
-
-
-
-
-
-
-
-
-
-    
-    
-    
-
-
-    
-
-
-
-
-
-# pdf_content = "Hello, this is a PDF generated without templates!"
-
-#      response = HttpResponse(content_type='application/pdf')
-
-#     #  response['Content-Disposition'] = 'filename="example.pdf"'
-
-#     #  response = HttpResponse(pdf. read(), content_type='application/pdf')
-
-#      response['Content-Disposition'] = 'inline;filename=mypdf.pdf'
-    
-#      PDFView(response, pdf_content) 
-
-#      return response
-
-
-
-
-
-
-
-
-
+ 

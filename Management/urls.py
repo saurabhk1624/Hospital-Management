@@ -4,6 +4,7 @@ from django.urls import path
 
 
 urlpatterns = [
+
     path('patientregister/',views.patientregister,name="patientregister"),
     path('patientlogin/',views.patientlogin,name="patientlogin"),
     path('staffregister/',views.staffregister,name="staffregister"),
@@ -21,10 +22,11 @@ urlpatterns = [
     path('patientappoint/',views.patientappoint,name="patientappoint"),
     path('render_app/',views.render_app,name="render_app"),
     path('logout/',views.logout,name="logout"),
-    # path('getpdf/',views.getpdf,name="getpdf"),
     path('department/',views.department,name="department"),
     path('doctor/',views.doctor,name="doctor"),
     path('schedule/',views.schedule,name="schedule"),
+    path('prescription/',views.prescription,name="prescription"),
+    path('prescriptionpdf/',views.prescriptionpdf,name="prescriptionpdf"),
 
 
 

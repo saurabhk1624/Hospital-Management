@@ -76,7 +76,7 @@ class Patients(models.Model):
 
     gender=models.CharField(max_length=20)
 
-    # doctor=models.CharField(max_length=200,null=True)
+  
 
     class Meta:
 
@@ -85,7 +85,7 @@ class Patients(models.Model):
 
 class Appointments(models.Model):
 
-    user=models.ForeignKey(User,on_delete=models.CASCADE)
+    patient=models.ForeignKey(Patients,on_delete=models.CASCADE)
 
     firstname=models.CharField(max_length=200)
 
