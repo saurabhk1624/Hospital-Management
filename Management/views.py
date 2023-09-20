@@ -567,8 +567,9 @@ def doctordash(request):
    if request.user.is_superuser and request.user.is_authenticated: 
 
     user=request.user.id
-    print(user)
-    data=doctors.objects.filter(user=user)
+    
+    data=doctors.objects.get(user=user)
+    print(data.username)
     info=Patients.objects.filter(doctor=data.id).values('username','firstname','lastname','Age','gender')
 
     patients=list(info)
