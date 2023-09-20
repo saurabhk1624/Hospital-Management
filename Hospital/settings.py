@@ -26,14 +26,14 @@ SECRET_KEY = 're+$bzh4cvhwd7#tfhw3+8i^y7h_gnv@8seke+wq6&5tt-7f*='
 DEBUG = True
 
 ALLOWED_HOSTS = ['*']
-
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_USE_TLS=True
 EMAIL_HOST='smtp.gmail.com'
-EMAIL_HOST_USER='Hospital@gmail.com'
-EMAIL_HOST_PASSWORD='Password12'
+EMAIL_HOST_USER='saurabhkushwaha1624@gmail.com'
+EMAIL_HOST_PASSWORD='vzbi clfn wldy mbam'
 EMAIL_PORT=587
 
-
+# vzbi clfn wldy mbam
 
 # Application definition
 

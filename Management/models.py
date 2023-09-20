@@ -42,7 +42,7 @@ class doctors(models.Model):
       
       special=models.ForeignKey(Speciality,on_delete=models.DO_NOTHING)
 
-      time=models.ForeignKey(time,on_delete=models.DO_NOTHING)
+      time=models.ForeignKey(time,on_delete=models.DO_NOTHING,null=True)
 
       user=models.ForeignKey(User,on_delete=models.DO_NOTHING)
 

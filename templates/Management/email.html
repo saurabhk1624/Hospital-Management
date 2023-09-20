@@ -45,7 +45,6 @@
             color: #fff;
             text-decoration: none;
             border-radius: 5px;
-            transition: background-color 0.3s ease;
             font-size: 16px;
         }
         .button:hover {
@@ -83,22 +82,23 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>Appointment Confirmation</h1>
+            <!-- <h1>Appointment Confirmation</h1> -->
+            <img  src="https://cdn.dribbble.com/userupload/4295917/file/original-ec80f02f7532b5f8afd04431e4a36cd5.jpg?resize=1200x1200" width="550"  height="100" alt="Hospital Logo"">
         </div>
         <div class="content">
-            <p>Dear {PatientName},</p>
-            <p>Your appointment with {DoctorName} at</p>
+            <p>Dear {{Firstname}},</p>
+            <p>Your appointment with {{Doctor}} at</p>
             <div class="appointment-details">
                 <h2>Date and Time:</h2>
-                <p>{AppointmentDate} at {AppointmentTime}</p>
+                <!-- <p>{AppointmentDate} at {AppointmentTime}</p> -->
                 <h2>Location:</h2>
                 <p>{HospitalLocation}</p>
             </div>
             <p>Please arrive at the hospital on time. If you have any questions or need to reschedule, please contact us at {HospitalPhoneNumber}.</p>
             <p>We look forward to providing you with the best possible care.</p>
-            <a class="button" href="#">View Appointment Details</a>
+            <!-- <a class="button" href="#">View Appointment Details</a> -->
             <div class="logo">
-                <img src="hospital_logo.png" alt="Hospital Logo">
+                <img src="https://cdn.dribbble.com/userupload/4295917/file/original-ec80f02f7532b5f8afd04431e4a36cd5.jpg?resize=1200x1200" alt="Hospital Logo">
             </div>
             <p class="tagline">Your Health, Our Priority</p>
         </div>

@@ -9,6 +9,8 @@ from django.http import FileResponse, JsonResponse
 
 from django.shortcuts import render, render_to_response
 
+from Hospital import settings
+
 from .models import Patients, Speciality, User,doctors,Appointments,time
 
 from django.contrib.auth import authenticate,login
@@ -18,6 +20,9 @@ from django.http import HttpResponse
 from django_renderpdf.views import PDFView,helpers
 
 from django.template.loader import render_to_string
+
+from django.core.mail import send_mail
+
 
 
 
@@ -626,7 +631,47 @@ def recepapproval(request):
 
     appointid=data['id']
 
-    Appointments.objects.filter(id=appointid).update(approve=True)
+    Appointments.objects.filter(id=appointid).update(docapproval=True)
+
+    info=Appointments.objects.get(id=appointid)
+      
+    
+    loads=Patients.objects.get(id=info.patient_id)
+
+    email=User.objects.get(id=loads.user_id)
+    
+
+    Doc=doctors.objects.get(id=loads.doctor_id)
+
+
+    data={
+       'Appointmentno':info.id,
+       'Firstname':info.firstname,
+       'Lastname':info.lastname,
+       'Age':info.Age,
+       'Problem':info.problem,
+       'Gender':info.gender,
+       'Doctor':Doc.firstname
+
+       }
+    subject='Regarding Appointment Status'
+
+    from_email=settings.EMAIL_HOST_USER
+
+    to_list=[email.email,]
+     
+   
+
+    message=render_to_string('Management/email.html',context=data)
+
+    # response = HttpResponse(content_type='application/templates/pdf')
+
+    # response['Content-Disposition'] = 'filename="Prescription.pdf"'
+
+
+    # response.write(message)
+
+    send_mail(subject,message,from_email,to_list,fail_silently=False)
 
     return JsonResponse({'message':'Appointment approved'},status=200)
    
@@ -712,14 +757,12 @@ def render_app(request):
      
      info=Appointments.objects.get(id=appointid)
       
-    #  print(info.patient)
-    #  loads=Patients.objects.get(id=info.patient_id)
+    
+     loads=Patients.objects.get(id=info.patient_id)
 
 
-    #  Doc=doctors.objects.get(id=loads.doctor)
+     Doc=doctors.objects.get(id=loads.doctor_id)
 
-
-    #  
 
      data={
        'Appointmentno':info.id,
@@ -728,7 +771,7 @@ def render_app(request):
        'Age':info.Age,
        'Problem':info.problem,
        'Gender':info.gender,
-      #  'Doctor':Doc.firstname
+       'Doctor':Doc.firstname
 
        }
     #  p=pickle.dumps(data)
