@@ -7,20 +7,23 @@
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
-            background-color: #f5f5f5;
+            background-color: linen;
         }
         .header {
-            background-color: #0074D9;
+            background-color:whitesmoke;
             color: #fff;
-            text-align: center;
+            /* text-align: center; */
+            justify-content: center;
             padding: 20px;
+            display:flex;
+            flex-direction: row;
             
         }
         .content {
             max-width: 800px;
             margin: 20px auto;
             padding: 20px;
-            background-color: #fff;
+            background-color: antiquewhite;
             border: 1px solid #ddd;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             
@@ -33,10 +36,16 @@
             margin-bottom: 10px;
         }
         h2 {
-            color: #0074D9;
+            color:black;
+            justify-content: center;
+            display: flex;
         }
         p {
             line-height: 1.5;
+            
+        }
+        h1{
+            color:blue;
             
         }
 
@@ -45,10 +54,13 @@
 <body>
     <div class="header">
         <!-- <h1>Hospital</h1> -->
-        <img src="https://cdn.dribbble.com/userupload/4295917/file/original-ec80f02f7532b5f8afd04431e4a36cd5.jpg?resize=1200x1200" width="1000" height="100">
+        <h1>Your Health</h1>
+        <img src="https://cdn.dribbble.com/userupload/4295917/file/original-ec80f02f7532b5f8afd04431e4a36cd5.jpg?resize=1200x1200" width="300" height="100">
+        <h1>Our Priority</h1>
     </div>
     <div class="content">
         <h2>Appointment Letter</h2>
+
         <div class="patient-details">
             <div class="patient-info">
                 <strong>Appointment no:</strong> {{Appointmentno}}

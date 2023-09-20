@@ -1,3 +1,4 @@
+# from email.message import EmailMessage
 from io import BytesIO, StringIO
 import json
 
@@ -21,7 +22,7 @@ from django_renderpdf.views import PDFView,helpers
 
 from django.template.loader import render_to_string
 
-from django.core.mail import send_mail
+from django.core.mail import send_mail,EmailMessage
 
 
 
@@ -660,18 +661,19 @@ def recepapproval(request):
 
     to_list=[email.email,]
      
-   
+    m='Your Appointment has been approved'
 
     message=render_to_string('Management/email.html',context=data)
 
-    # response = HttpResponse(content_type='application/templates/pdf')
+    # message=EmailMessage(subject,from_email,to_list,data,'Management/email.html',render=True)
+    
+    # message.template_name = 'Management/email.html'
+    # # message.load_template()
+    # message.render()
+    # message.send()
+    # # message.send()
 
-    # response['Content-Disposition'] = 'filename="Prescription.pdf"'
-
-
-    # response.write(message)
-
-    send_mail(subject,message,from_email,to_list,fail_silently=False)
+    send_mail(subject,message=m,from_email=from_email,recipient_list=to_list,html_message=message,fail_silently=False)
 
     return JsonResponse({'message':'Appointment approved'},status=200)
    
