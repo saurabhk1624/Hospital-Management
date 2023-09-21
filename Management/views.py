@@ -25,25 +25,6 @@ from django.template.loader import render_to_string
 from django.core.mail import send_mail,EmailMessage
 
 
-
-
-# def getpdf(request): 
-         
-#         if request.method=='GET':
-
-#          response = HttpResponse(content_type='application/pdf')  
-#          response['Content-Disposition'] = 'attachment; filename="file.pdf"'  
-#          p = canvas.Canvas(response)  
-#          p.setFont("Times-Roman", 55)  
-#          p.drawString(100,700, "Hello, Saurabh.")  
-#          p.showPage()  
-#          p.save()  
-#          return response  
-
-
-
-
-
 # Registartion of patient
 
 def patientregister(request):
@@ -210,6 +191,8 @@ def staffregister(request):
 
         cpassword=data2['confirmpassword']
 
+        special=Speciality.objects.get(id=speciality)
+
         if not name or not email or not gender or not speciality or not password:
            
            return JsonResponse({'message':'All fields are required'},status=400)
@@ -246,7 +229,7 @@ def staffregister(request):
 
                   user=User.objects.get(email=email)
 
-                  doctors.objects.create(firstname=firstname,lastname=lastname,gender=gender,special_id=speciality,user_id=user.id,username=name)
+                  doctors.objects.create(firstname=firstname,lastname=lastname,gender=gender,special_id=speciality,user_id=user.id,username=name,speciality=special.department)
                
 
                   user.first_name=firstname
@@ -386,6 +369,30 @@ def doctor(request):
 
     return JsonResponse({'message':'Method not allowed'},status=405) 
   
+# receptionist dashboard
+
+def reception(request):
+
+  if request.method=='GET':
+
+   if request.user.is_authenticated and request.user.is_staff:
+
+    user=request.user.id
+
+    patientinfo=doctors.objects.filter(user_id=user).values('username','firstname','lastname','gender')
+
+    info=list(patientinfo)
+
+    return JsonResponse(info,safe=False)
+  
+   else:
+     
+     return JsonResponse({'message':'Not authenticated'},status=401) 
+   
+  else :
+
+    return JsonResponse({'message':'Method not allowed'},status=405) 
+  
 
 # schedule time
 def schedule(request):
@@ -423,9 +430,11 @@ def appointment(request):
     time=data3['time']
 
     doctor=data3['doctor']
+    # print(doctor)
 
     user=request.user.id
-    print(user)
+    
+    doc=doctors.objects.get(id=doctor)
 
     info=Patients.objects.get(user=user)
 
@@ -437,10 +446,9 @@ def appointment(request):
       
       if Patients.objects.filter(user=user,exist=False).exists():
        
-        Appointments.objects.create(firstname=info.firstname,lastname=info.lastname,Age=info.Age,problem=problem,gender=info.gender,Registerdate=time,medical=medical,patient_id=info.id)
+        Appointments.objects.create(firstname=info.firstname,doctor_id=doc.id,lastname=info.lastname,Age=info.Age,problem=problem,gender=info.gender,Registerdate=time,medical=medical,patient_id=info.id)
         info.doctor_id=doctor
         
-
         info.exist=True
 
         info.save()
@@ -518,7 +526,7 @@ def showdoctor(request):
 
    if request.user.is_staff and request.user.is_authenticated:  
 
-    info=doctors.objects.all().values('firstname','lastname','gender','user_id','speciality')
+    info=doctors.objects.filter(reception=False).values('firstname','lastname','gender','user','speciality')
 
     doctor=list(info)
 
@@ -665,13 +673,6 @@ def recepapproval(request):
 
     message=render_to_string('Management/email.html',context=data)
 
-    # message=EmailMessage(subject,from_email,to_list,data,'Management/email.html',render=True)
-    
-    # message.template_name = 'Management/email.html'
-    # # message.load_template()
-    # message.render()
-    # message.send()
-    # # message.send()
 
     send_mail(subject,message=m,from_email=from_email,recipient_list=to_list,html_message=message,fail_silently=False)
 
@@ -782,9 +783,9 @@ def render_app(request):
     #  print(data)
     #  pdf_file = StringIO()
     #  helpers.render_pdf('Management/Appoint.html',pdf_file,data)
-     response = HttpResponse(content_type='application/templates/pdf')
+     response = FileResponse(content_type='application/templates/pdf')
     #  response.write(p)
-     response['Content-Disposition'] = 'filename="Appointment.pdf"'
+     response['Content-Disposition'] = 'inline ; filename="Appointment.pdf"'
      response.write(p)
      return response
 

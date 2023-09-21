@@ -27,6 +27,8 @@ urlpatterns = [
     path('schedule/',views.schedule,name="schedule"),
     path('prescription/',views.prescription,name="prescription"),
     path('prescriptionpdf/',views.prescriptionpdf,name="prescriptionpdf"),
+    path('reception/',views.reception,name="reception"),
+
 
 
 

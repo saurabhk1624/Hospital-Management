@@ -54,6 +54,10 @@ class doctors(models.Model):
 
       gender=models.CharField(max_length=20)
 
+      reception=models.BooleanField(default=False)
+
+      speciality=models.CharField(max_length=200)
+
       class Meta:
 
         db_table = 'doctors_records'
@@ -87,6 +91,8 @@ class Appointments(models.Model):
 
     patient=models.ForeignKey(Patients,on_delete=models.CASCADE)
 
+    doctor=models.ForeignKey(doctors,on_delete=models.DO_NOTHING,null=True)
+
     firstname=models.CharField(max_length=200)
 
     lastname=models.CharField(max_length=200)
@@ -112,6 +118,8 @@ class Appointments(models.Model):
     prescription=models.TextField(max_length=400,null=True)
 
     reason=models.TextField(max_length=400,null=True)
+
+    
 
     class Meta:
 
