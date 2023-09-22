@@ -8,7 +8,7 @@
         @page {
              size: 7in 9.25in;
              margin: 27mm 16mm 27mm 16mm;
-             color: antiquewhite;
+             color: #f4f1ea;
           }
 
         body {
@@ -21,7 +21,7 @@
             max-width: 600px;
             margin: 20px auto;
             padding: 20px;
-            background-color: #fff;
+            background-color: rgb(110, 224, 180);
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             border-radius: 5px;
         }
@@ -57,13 +57,13 @@
             background-color: #0056b3;
         }
         .appointment-details {
-            background-color: #f9f9f9;
+            background-color: #1ecef5;
             padding: 20px;
             margin-top: 30px;
             border-radius: 5px;
         }
         .appointment-details h2 {
-            color: #0074D9;
+            color: #0c0c0c;
             font-size: 20px;
             margin-top: 0;
         }
@@ -80,7 +80,7 @@
             height: auto;
         }
         .tagline {
-            color: #0074D9;
+            color: #d90000;
             font-size: 18px;
         }
     </style>
@@ -93,14 +93,14 @@
         </div>
         <div class="content">
             <p>Dear {{Firstname}},</p>
-            <p>Your appointment with {{Doctor}} at</p>
+            <p>Your appointment with {{Doctor}}</p>
             <div class="appointment-details">
                 <h2>Date and Time:</h2>
-                <!-- <p>{AppointmentDate} at {AppointmentTime}</p> -->
+                <p> {{Time}}</p>
                 <h2>Location:</h2>
                 <strong>KIET</strong>
             </div>
-            <p>Please arrive at the hospital on time. If you have any questions or need to reschedule, please contact us at {HospitalPhoneNumber}.</p>
+            <p>Please arrive at the hospital on time. If you have any questions or need to reschedule, please contact us at 101.</p>
             <p>We look forward to providing you with the best possible care.</p>
           
             <div class="logo">

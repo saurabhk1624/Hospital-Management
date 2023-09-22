@@ -28,7 +28,7 @@ urlpatterns = [
     path('prescription/',views.prescription,name="prescription"),
     path('prescriptionpdf/',views.prescriptionpdf,name="prescriptionpdf"),
     path('reception/',views.reception,name="reception"),
-
+    path('doctorlist/',views.doctorlist,name="doctorlist"),
 
 
 

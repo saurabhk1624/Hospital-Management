@@ -37,6 +37,12 @@ class time(models.Model):
          db_table='schedule_time'
 
 
+# class Navbar(models.Model):
+
+#     Headings=models.CharField(max_length=200)
+
+#     status=models.BooleanField(default=False)
+
 
 class doctors(models.Model):
       
