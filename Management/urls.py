@@ -30,10 +30,6 @@ urlpatterns = [
     path('reception/',views.reception,name="reception"),
     path('doctorlist/',views.doctorlist,name="doctorlist"),
     path('leftpanel/',views.leftpanel,name="leftpanel"),
-
-
-
-
-
+    path('panelrouting/',views.panelrouting,name="panelrouting"),
 
 ]

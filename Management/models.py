@@ -12,7 +12,11 @@ class User(AbstractUser):
         db_table = 'staff_records'
 
 
+class Roles(models.Model):
 
+    Role=models.CharField(max_length=200)
+
+    status=models.BooleanField(default=False)
 
 class Speciality(models.Model):
 
@@ -41,6 +45,8 @@ class time(models.Model):
 
 class Leftpanel(models.Model):
 
+    icon=models.CharField(max_length=200,default=True)
+
     Heading=models.CharField(max_length=200)
 
     Patient=models.BooleanField(default=False)
@@ -51,8 +57,6 @@ class Leftpanel(models.Model):
 
 
 class doctors(models.Model):
-      
-    #   leftpanel=models.ForeignKey(Leftpanel,on_delete=models.DO_NOTHING,null=True)
       
       special=models.ForeignKey(Speciality,on_delete=models.DO_NOTHING)
 
@@ -78,7 +82,6 @@ class doctors(models.Model):
 
 class Patients(models.Model):
 
-    # leftpanel=models.ForeignKey(Leftpanel,on_delete=models.DO_NOTHING,null=True)
 
     user=models.ForeignKey(User,on_delete=models.DO_NOTHING) 
     

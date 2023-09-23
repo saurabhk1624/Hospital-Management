@@ -1,11 +1,8 @@
 import json
 
-import base64
-import pickle
-
 import re
 
-from django.http import FileResponse, JsonResponse
+from django.http import  JsonResponse
 
 from Hospital import settings
 
@@ -885,7 +882,7 @@ def leftpanel(request):
 
     if request.user.is_authenticated and request.user.is_superuser:
 
-      info=Leftpanel.objects.filter(Staff=True).values('id','Heading')
+      info=Leftpanel.objects.filter(Staff=True).values('id','Heading','icon')
 
       data=list(info)
 
@@ -893,7 +890,7 @@ def leftpanel(request):
    
     elif request.user.is_authenticated and request.user.is_staff:
 
-      info=Leftpanel.objects.all().values('id','Heading')
+      info=Leftpanel.objects.all().values('id','Heading','icon')
 
       data=list(info)
 
@@ -901,7 +898,7 @@ def leftpanel(request):
     
     elif request.user.is_authenticated:
 
-      info=Leftpanel.objects.filter(Patient=True).values('id','Heading')
+      info=Leftpanel.objects.filter(Patient=True).values('id','Heading','icon')
 
       data=list(info)
 
@@ -915,7 +912,21 @@ def leftpanel(request):
 
     return JsonResponse({'message':'Method not allowed'},status=405)  
     
-    
+
+def panelrouting(request):
+
+  if request.method=='GET':
+
+    id=request.GET.get('id')
+
+    info=Leftpanel.objects.get(id=id)
+
+    return JsonResponse({'message':info.Heading},status=200)   
+
+  else:
+
+    return JsonResponse({'message':'Method not allowed'},status=405) 
+
 
 
 
