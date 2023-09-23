@@ -29,7 +29,9 @@ class Speciality(models.Model):
 class time(models.Model):
      
      Time=models.TextField()
+
      status=models.BooleanField(default=False)
+
      capacity=models.PositiveSmallIntegerField()
 
      class Meta:
@@ -37,14 +39,20 @@ class time(models.Model):
          db_table='schedule_time'
 
 
-# class Navbar(models.Model):
+class Leftpanel(models.Model):
 
-#     Headings=models.CharField(max_length=200)
+    Heading=models.CharField(max_length=200)
 
-#     status=models.BooleanField(default=False)
+    Patient=models.BooleanField(default=False)
+
+    Staff=models.BooleanField(default=False)
+
+    status=models.BooleanField(default=False)
 
 
 class doctors(models.Model):
+      
+    #   leftpanel=models.ForeignKey(Leftpanel,on_delete=models.DO_NOTHING,null=True)
       
       special=models.ForeignKey(Speciality,on_delete=models.DO_NOTHING)
 
@@ -69,6 +77,8 @@ class doctors(models.Model):
         db_table = 'doctors_records'
 
 class Patients(models.Model):
+
+    # leftpanel=models.ForeignKey(Leftpanel,on_delete=models.DO_NOTHING,null=True)
 
     user=models.ForeignKey(User,on_delete=models.DO_NOTHING) 
     

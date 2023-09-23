@@ -1,16 +1,15 @@
 import json
-import os
 
+import base64
 import pickle
 
 import re
-from django.forms import FilePathField
 
 from django.http import FileResponse, JsonResponse
 
 from Hospital import settings
 
-from .models import Patients, Speciality, User,doctors,Appointments,time
+from .models import Leftpanel, Patients, Speciality, User,doctors,Appointments,time
 
 from django.contrib.auth import authenticate,login
 
@@ -791,7 +790,7 @@ def render_app(request):
     
      response = HttpResponse(content_type='application/templates/pdf')
     
-     response['Content-Disposition'] = 'attachement; filename='+ os.path.basename()
+     response['Content-Disposition'] = 'attachement; filename="Appointment.pdf"'
      
      response.write(p)
      
@@ -878,10 +877,44 @@ def doctorlist(request):
 
     return JsonResponse({'message':'Method not allowed'},status=405)
   
+# Left panel  
 
+def leftpanel(request):
 
-  
+  if request.method=='GET':
 
+    if request.user.is_authenticated and request.user.is_superuser:
+
+      info=Leftpanel.objects.filter(Staff=True).values('id','Heading')
+
+      data=list(info)
+
+      return JsonResponse(data,safe=False)
+   
+    elif request.user.is_authenticated and request.user.is_staff:
+
+      info=Leftpanel.objects.all().values('id','Heading')
+
+      data=list(info)
+
+      return JsonResponse(data,safe=False)
+    
+    elif request.user.is_authenticated:
+
+      info=Leftpanel.objects.filter(Patient=True).values('id','Heading')
+
+      data=list(info)
+
+      return JsonResponse(data,safe=False)
+   
+    else:
+
+      return JsonResponse({'message':'User is not authenticated'},status=401)
+    
+  else:
+
+    return JsonResponse({'message':'Method not allowed'},status=405)  
+    
     
 
 

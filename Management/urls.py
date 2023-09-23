@@ -29,6 +29,8 @@ urlpatterns = [
     path('prescriptionpdf/',views.prescriptionpdf,name="prescriptionpdf"),
     path('reception/',views.reception,name="reception"),
     path('doctorlist/',views.doctorlist,name="doctorlist"),
+    path('leftpanel/',views.leftpanel,name="leftpanel"),
+
 
 
 
