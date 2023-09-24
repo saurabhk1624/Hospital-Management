@@ -12,9 +12,9 @@ class User(AbstractUser):
         db_table = 'staff_records'
 
 
-class Roles(models.Model):
+class Management(models.Model):
 
-    Role=models.CharField(max_length=200)
+    Title=models.CharField(max_length=200)
 
     status=models.BooleanField(default=False)
 

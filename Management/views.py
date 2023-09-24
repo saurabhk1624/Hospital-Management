@@ -697,6 +697,40 @@ def recepapproval(request):
 
     Appointments.objects.filter(id=appointid).update(reject=True)
 
+    info=Appointments.objects.get(id=appointid)
+      
+    
+    loads=Patients.objects.get(id=info.patient_id)
+
+    email=User.objects.get(id=loads.user_id)
+    
+
+    Doc=doctors.objects.get(id=loads.doctor_id)
+
+
+    data={
+       'Appointmentno':info.id,
+       'Firstname':info.firstname,
+       'Lastname':info.lastname,
+       'Age':info.Age,
+       'Problem':info.problem,
+       'Gender':info.gender,
+       'Doctor':Doc.firstname,
+        'Time':info.Registerdate
+       }
+    subject='Regarding Appointment Status'
+
+    from_email=settings.EMAIL_HOST_USER
+
+    to_list=[email.email,]
+     
+    m='Your Appointment has been approved'
+
+    message=render_to_string('Management/Rejection.html',context=data)
+
+
+    send_mail(subject,message=m,from_email=from_email,recipient_list=to_list,html_message=message,fail_silently=False)
+
     return JsonResponse({'message':'Appointment rejected'},status=200)
    
    else:
@@ -793,6 +827,9 @@ def render_app(request):
      
      return response
 
+
+# prescription by doctor
+
 def  prescription(request):
 
   if request.method=='PUT':
@@ -854,7 +891,8 @@ def prescriptionpdf(request):
 
      return response
    
-  # dependent dropdown doctor list
+
+# dependent dropdown doctor list
 
 def doctorlist(request):
   
@@ -873,7 +911,8 @@ def doctorlist(request):
   else:
 
     return JsonResponse({'message':'Method not allowed'},status=405)
-  
+
+
 # Left panel  
 
 def leftpanel(request):
