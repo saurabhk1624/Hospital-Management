@@ -55,6 +55,10 @@ class Leftpanel(models.Model):
 
     status=models.BooleanField(default=False)
 
+    class Meta:
+
+        db_table='leftpanel_records'
+
 
 class doctors(models.Model):
       
@@ -161,7 +165,3 @@ class payment(models.Model) :
 
      db_table ='payment_records'
 
-
-# class medical(models.Model):
-
-#     appointment=models.ForeignKey()

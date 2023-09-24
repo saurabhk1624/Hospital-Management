@@ -350,6 +350,7 @@ def patient(request):
   
 
 # doctor detail for doc dashboard
+
 def doctor(request):
 
   if request.method=='GET':
@@ -506,8 +507,10 @@ def patientappoint(request):
    if request.user.is_authenticated:
 
     user=request.user.id
+    
+    data=Patients.objects.get(user=user)
 
-    info=Appointments.objects.filter(user=user,patientapproval=True).values('id','firstname','lastname','Age','gender')
+    info=Appointments.objects.filter(patient=data.id,docapproval=True).values('id','firstname','lastname','Age','gender')
 
     appointment=list(info)
 
@@ -615,7 +618,6 @@ def individualpatient(request):
    
    if request.user.is_superuser and request.user.is_authenticated:
 
-
     patientid=request.GET.get('patientid')
 
     info=Patients.objects.filter(id=patientid).values('firstname','lastname','Age','gender')
@@ -645,7 +647,9 @@ def recepapproval(request):
 
     appointid=data['id']
 
-    Appointments.objects.filter(id=appointid).update(docapproval=True)
+    reason=data['reason']
+
+    Appointments.objects.filter(id=appointid).update(docapproval=True,reason=reason)
 
     info=Appointments.objects.get(id=appointid)
       
@@ -695,7 +699,9 @@ def recepapproval(request):
 
     appointid=data1['id']
 
-    Appointments.objects.filter(id=appointid).update(reject=True)
+    reason=data1['reason']
+
+    Appointments.objects.filter(id=appointid).update(reject=True,reason=reason)
 
     info=Appointments.objects.get(id=appointid)
       
@@ -750,7 +756,7 @@ def recepappoint(request):
       
      if request.user.is_staff and request.user.is_authenticated:
 
-      info=Appointments.objects.filter(new=False).values('id','firstname','lastname','Age','problem','gender')
+      info=Appointments.objects.filter(new=False,reject=False).values('id','firstname','lastname','Age','problem','gender')
 
       patient=list(info)
 
@@ -774,7 +780,13 @@ def docappoint(request):
 
    if request.user.is_superuser and request.user.is_authenticated:
 
-    info=Appointments.objects.filter(new=True).values('id','firstname','lastname','Age','problem','gender')
+    user=request.user.id
+
+    data=doctors.objects.get(user=user)
+
+    print(data.id)
+
+    info=Appointments.objects.filter(doctor=data.id,new=True,reject=False).values('id','firstname','lastname','Age','problem','gender')
 
     patient=list(info)
 
@@ -816,8 +828,10 @@ def render_app(request):
        'Doctor':Doc.firstname
 
        }
+     
+     template_list=['Management/Base.html','Management/Appoint.html']
     
-     p=render_to_string('Management/Appoint.html',context=data)
+     p=render_to_string(template_name=template_list,context=data)
     
      response = HttpResponse(content_type='application/templates/pdf')
     
@@ -902,11 +916,15 @@ def doctorlist(request):
     
       id=request.GET.get('id')
      
-      info=doctors.objects.filter(special=id).values('id','firstname','lastname')
+      info=doctors.objects.filter(special=id,reception=False).values('id','firstname','lastname')
 
       data=list(info)
 
       return JsonResponse(data,safe=False)
+     
+     else:
+       
+       return JsonResponse({'message':'user is not authenticated'},status=401)
      
   else:
 
@@ -957,6 +975,7 @@ def panelrouting(request):
   if request.method=='GET':
 
     id=request.GET.get('id')
+    print(id)
 
     info=Leftpanel.objects.get(id=id)
 
