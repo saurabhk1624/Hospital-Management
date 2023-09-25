@@ -6,7 +6,7 @@ from django.http import  JsonResponse
 
 from Hospital import settings
 
-from .models import Leftpanel, Patients, Speciality, User,doctors,Appointments,time
+from .models import Leftpanel, Patients, Prescription, Speciality, User,doctors,Appointments,time
 
 from django.contrib.auth import authenticate,login
 
@@ -41,7 +41,7 @@ def patientregister(request):
 
         cpassword=data['confirmpassword']
 
-        if not name or not email or not gender or not age or not password:
+        if not name or not email or not gender or not age or not password or not firstname or not lastname or not cpassword:
            
            return JsonResponse({'message':'All fields are required'},status=400)
      
@@ -192,7 +192,7 @@ def staffregister(request):
 
         special=Speciality.objects.get(id=speciality)
 
-        if not name or not email or not gender or not speciality or not password:
+        if not name or not email or not gender or not speciality or not password or not firstname or not lastname or not cpassword:
            
            return JsonResponse({'message':'All fields are required'},status=400)
      
@@ -403,7 +403,7 @@ def schedule(request):
 
   if request.method=='GET':
 
-    info=time.objects.filter(status=False,capacity__lte=20).values('id','Time')
+    info=time.objects.filter(status=False).values('id','Time')
 
     data=list(info)
 
@@ -431,10 +431,15 @@ def appointment(request):
 
     medical=data3['medical']
 
-    time=data3['time']
+    Time=data3['time']
 
     doctor=data3['doctor']
-    
+
+    date=data3['date']
+
+    print(doctor)
+     
+    data=time.objects.get(id=Time)
 
     user=request.user.id
     
@@ -442,15 +447,15 @@ def appointment(request):
 
     info=Patients.objects.get(user=user)
 
-    if not problem or not medical or not time or doctor :
+    if not problem or not medical or not Time or not doctor or not date :
 
-      return JsonResponse({'message':'Problem is required'},status=400)
+      return JsonResponse({'message':'All fields are required'},status=400)
     
     else:
       
       if Patients.objects.filter(user=user,exist=False).exists():
        
-        Appointments.objects.create(firstname=info.firstname,doctor_id=doctor,lastname=info.lastname,Age=info.Age,problem=problem,gender=info.gender,Registerdate=time,medical=medical,patient_id=info.id)
+        Appointments.objects.create(firstname=info.firstname,doctor_id=doctor,lastname=info.lastname,Age=info.Age,problem=problem,gender=info.gender,Registerdate=date,time=data.Time,medical=medical,patient_id=info.id)
         
         info.doctor_id=doctor
         
@@ -462,7 +467,7 @@ def appointment(request):
       
       else:
 
-        Appointments.objects.create(firstname=info.firstname,doctor_id=doctor,lastname=info.lastname,Age=info.Age,problem=problem,gender=info.gender,Registerdate=time,new=True,medical=medical,patient_id=info.id)
+        Appointments.objects.create(firstname=info.firstname,doctor_id=doctor,lastname=info.lastname,Age=info.Age,problem=problem,gender=info.gender,Registerdate=date,time=data.Time,new=True,medical=medical,patient_id=info.id)
         
         info.doctor_id=doctor
 
@@ -811,12 +816,9 @@ def render_app(request):
      
      info=Appointments.objects.get(id=appointid)
       
-    
      loads=Patients.objects.get(id=info.patient_id)
 
-
      Doc=doctors.objects.get(id=loads.doctor_id)
-
 
      data={
        'Appointmentno':info.id,
@@ -846,7 +848,7 @@ def render_app(request):
 
 def  prescription(request):
 
-  if request.method=='PUT':
+  if request.method=='POST':
     
     if request.user.is_authenticated and request.user.is_superuser:
 
@@ -854,15 +856,17 @@ def  prescription(request):
 
      id=loads['id']
 
-     prescription=loads['prescription']
+     medicine_name=loads['medicine']
+
+     dosage=loads['dosage']
      
-     if not prescription:
+     if not medicine_name or not dosage:
        
-       return JsonResponse({'message':'Precription allowed'},status=400)
+       return JsonResponse({'message':'All fields are required'},status=400)
      
      else:
        
-       Appointments.objects.filter(id=id).update(prescription=prescription)
+       Prescription.objects.create(medicinename=medicine_name,dosage=dosage,appointment=id)
 
        return JsonResponse({'message':'Prescription added'},status=200)
      

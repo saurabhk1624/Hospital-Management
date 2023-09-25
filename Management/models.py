@@ -36,8 +36,7 @@ class time(models.Model):
 
      status=models.BooleanField(default=False)
 
-     capacity=models.PositiveSmallIntegerField()
-
+   
      class Meta:
          
          db_table='schedule_time'
@@ -79,6 +78,8 @@ class doctors(models.Model):
       reception=models.BooleanField(default=False)
 
       speciality=models.CharField(max_length=200)
+
+     
 
       class Meta:
 
@@ -128,6 +129,8 @@ class Appointments(models.Model):
 
     Registerdate=models.DateField()
 
+    time=models.TextField()
+
     gender=models.CharField(max_length=20)
 
     new=models.BooleanField(default=False)
@@ -137,8 +140,6 @@ class Appointments(models.Model):
     patientapproval=models.BooleanField(default=False)
 
     docapproval=models.BooleanField(default=False)
-
-    prescription=models.TextField(max_length=400,null=True)
 
     reason=models.TextField(max_length=400,null=True)
 
@@ -165,3 +166,18 @@ class payment(models.Model) :
 
      db_table ='payment_records'
 
+
+class Prescription(models.Model):
+
+    appointment=models.ForeignKey(Appointments,on_delete=models.DO_NOTHING)
+
+    medicine_name=models.CharField(max_length=200)
+
+    dosage=models.SmallIntegerField()
+
+    status=models.BooleanField(default=False)
+
+
+    class Meta:
+
+        db_table='prescription_records'
