@@ -113,7 +113,7 @@ class Patients(models.Model):
 
 class Appointments(models.Model):
 
-    patient=models.ForeignKey(Patients,on_delete=models.CASCADE)
+    patient=models.ForeignKey(Patients,on_delete=models.DO_NOTHING,null=True)
 
     doctor=models.ForeignKey(doctors,on_delete=models.DO_NOTHING,null=True)
 
@@ -137,14 +137,11 @@ class Appointments(models.Model):
 
     reject=models.BooleanField(default=False)
 
-    patientapproval=models.BooleanField(default=False)
-
     docapproval=models.BooleanField(default=False)
 
     reason=models.TextField(max_length=400,null=True)
 
     
-
     class Meta:
 
         db_table = 'appointment_records'
@@ -152,7 +149,7 @@ class Appointments(models.Model):
 
 class payment(models.Model) :
 
-    appointment=models.ForeignKey(Appointments,on_delete=models.CASCADE)
+    appointment=models.ForeignKey(Appointments,on_delete=models.DO_NOTHING,null=True)
 
     name=models.CharField(max_length=200)
 
@@ -169,7 +166,9 @@ class payment(models.Model) :
 
 class Prescription(models.Model):
 
-    appointment=models.ForeignKey(Appointments,on_delete=models.DO_NOTHING)
+    patient=models.ForeignKey(Patients,on_delete=models.DO_NOTHING,null=True)
+
+    appointment=models.ForeignKey(Appointments,on_delete=models.DO_NOTHING,null=True)
 
     medicine_name=models.CharField(max_length=200)
 

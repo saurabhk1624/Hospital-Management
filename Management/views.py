@@ -41,24 +41,31 @@ def patientregister(request):
 
         cpassword=data['confirmpassword']
 
+        # res = not any(firstname)
+
+        # if  res:
+
+        #   return JsonResponse({'message':'field are required'})
+        # else:
+
         if not name or not email or not gender or not age or not password or not firstname or not lastname or not cpassword:
            
            return JsonResponse({'message':'All fields are required'},status=400)
      
         else:
          
-         if not  re.match(r'\b[\w\.-]+@[\w\.-]+\.\w{2,4}\b',email) :
+          if not  re.match(r'\b[\w\.-]+@[\w\.-]+\.\w{2,4}\b',email) :
           
            
            return JsonResponse({'message':'Not valid Email'},status=400)
          
-         else:
+          else:
 
-          if User.objects.filter(username=name).exists():
+           if User.objects.filter(username=name).exists():
            
-           return JsonResponse({'message':'username already exist'},status=400)
+            return JsonResponse({'message':'username already exist'},status=400)
           
-          else: 
+           else: 
            
            
               if re.match(r"^(?=.*[\d])(?=.*[A-Z])(?=.*[a-z])(?=.*[@#$])[\w\d@#$]{8,15}$",password) is None:
@@ -437,8 +444,6 @@ def appointment(request):
 
     date=data3['date']
 
-    print(doctor)
-     
     data=time.objects.get(id=Time)
 
     user=request.user.id
@@ -457,7 +462,7 @@ def appointment(request):
        
         Appointments.objects.create(firstname=info.firstname,doctor_id=doctor,lastname=info.lastname,Age=info.Age,problem=problem,gender=info.gender,Registerdate=date,time=data.Time,medical=medical,patient_id=info.id)
         
-        info.doctor_id=doctor
+        info.doctor=doctor
         
         info.exist=True
 
@@ -469,7 +474,7 @@ def appointment(request):
 
         Appointments.objects.create(firstname=info.firstname,doctor_id=doctor,lastname=info.lastname,Age=info.Age,problem=problem,gender=info.gender,Registerdate=date,time=data.Time,new=True,medical=medical,patient_id=info.id)
         
-        info.doctor_id=doctor
+        info.doctor=doctor
 
         info.save()
 
@@ -789,8 +794,6 @@ def docappoint(request):
 
     data=doctors.objects.get(user=user)
 
-    print(data.id)
-
     info=Appointments.objects.filter(doctor=data.id,new=True,reject=False).values('id','firstname','lastname','Age','problem','gender')
 
     patient=list(info)
@@ -827,13 +830,14 @@ def render_app(request):
        'Age':info.Age,
        'Problem':info.problem,
        'Gender':info.gender,
-       'Doctor':Doc.firstname
+       'Doctor':Doc.firstname,
+       'Date':info.Registerdate
 
        }
      
-     template_list=['Management/Base.html','Management/Appoint.html']
+    #  template_list=['Management/Base.html','Management/Appoint.html']
     
-     p=render_to_string(template_name=template_list,context=data)
+     p=render_to_string('Management/Appoint.html',context=data)
     
      response = HttpResponse(content_type='application/templates/pdf')
     
@@ -973,14 +977,15 @@ def leftpanel(request):
 
     return JsonResponse({'message':'Method not allowed'},status=405)  
     
+  
+# for routing of panel
 
 def panelrouting(request):
 
   if request.method=='GET':
 
     id=request.GET.get('id')
-    print(id)
-
+   
     info=Leftpanel.objects.get(id=id)
 
     return JsonResponse({'message':info.Heading},status=200)   
