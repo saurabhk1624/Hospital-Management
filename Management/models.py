@@ -174,6 +174,8 @@ class Prescription(models.Model):
 
     dosage=models.SmallIntegerField()
 
+    instruction=models.TextField(null=True)
+
     status=models.BooleanField(default=False)
 
 

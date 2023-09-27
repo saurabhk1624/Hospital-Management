@@ -863,6 +863,10 @@ def  prescription(request):
      medicine_name=loads['medicine']
 
      dosage=loads['dosage']
+
+     instruction=loads['instruction']
+
+     info=Appointments.objects.get(id=id)
      
      if not medicine_name or not dosage:
        
@@ -870,7 +874,7 @@ def  prescription(request):
      
      else:
        
-       Prescription.objects.create(medicinename=medicine_name,dosage=dosage,appointment=id)
+       Prescription.objects.create(medicine_name=medicine_name,instruction=instruction,dosage=dosage,appointment_id=id,patient_id=info.patient_id)
 
        return JsonResponse({'message':'Prescription added'},status=200)
      
@@ -883,36 +887,33 @@ def  prescription(request):
     return JsonResponse({'message':'Method not allowed'},status=405)
 
 
+#  prescription data on patient dashboard
+
 def prescriptionpdf(request):
 
   if request.method=='GET':
    
    if request.user.is_authenticated:
      
-     id=request.GET.get('id')
+     user=request.user.id
 
-     info=Appointments.objects.get(id=id)
-      
-     data={
-       'Appointmentno':info.id,
-       'Firstname':info.firstname,
-       'Lastname':info.lastname,
-       'Age':info.Age,
-       'Problem':info.problem,
-       'Gender':info.gender,
-       'prescription':info.prescription
-       }
-     
-     p=render_to_string('Management/prescription.html',context=data)
-     
-     response = HttpResponse(content_type='application/templates/pdf')
-    
-     response['Content-Disposition'] = 'filename="Prescription.pdf"'
+     id=Patients.objects.get(user=user)
 
-     response.write(p)
+     info=Prescription.objects.filter(patient=id.id).values('appointname','medicine_name','dosage','instruction')
 
-     return response
+     data=list(info)
+
+     return  JsonResponse(data,safe=False)
    
+   else:
+     
+     return JsonResponse({'message':'User is not authenticated'},status=401)
+   
+  else:
+
+    return JsonResponse({'message':'Method not allowed'},status=405) 
+
+     
 
 # dependent dropdown doctor list
 
@@ -995,6 +996,30 @@ def panelrouting(request):
     return JsonResponse({'message':'Method not allowed'},status=405) 
 
 
+#  for prescription routing details
+
+def prescriptiondata(request):
+
+  if request.method=='GET':
+
+    if request.user.is_authenticated and request.user.is_superuser:
+
+     id=request.GET.get('id')
+
+     info=Appointments.objects.filter(id=id).values('firstname','lastname','Age','gender')
+
+     data=list(info)
+
+     return JsonResponse(data,safe=False)
+    
+    else:
+
+      return JsonResponse({'message':'User is not authenticated'},status=401)   
+
+  else:
+
+    return JsonResponse({'message':'Method not allowed'},status=405)  
+  
 
 
 
