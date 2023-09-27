@@ -1,12 +1,15 @@
+import io
 import json
 
 import re
+# from django import views
 
-from django.http import  JsonResponse
+from django.http import  FileResponse, JsonResponse
 
 from Hospital import settings
 
-from .models import Leftpanel, Patients, Prescription, Speciality, User,doctors,Appointments,time
+
+from .models import Leftpanel, Patients, Prescription, Speciality, User,doctors,Appointments, payment,time
 
 from django.contrib.auth import authenticate,login
 
@@ -14,7 +17,11 @@ from django.http import HttpResponse
 
 from django.template.loader import render_to_string
 
+from django_renderpdf import helpers
+
 from django.core.mail import send_mail
+
+from io import BytesIO
 
 
 # Registartion of patient
@@ -834,19 +841,19 @@ def render_app(request):
        'Date':info.Registerdate
 
        }
-     
-    #  template_list=['Management/Base.html','Management/Appoint.html']
     
-     p=render_to_string('Management/Appoint.html',context=data)
+     template='Management/base.html'
     
-     response = HttpResponse(content_type='application/templates/pdf')
+     response = HttpResponse(content_type="application/pdf")
     
-     response['Content-Disposition'] = 'attachement; filename="Appointment.pdf"'
-     
-     response.write(p)
-     
-     return response
-
+     response["Content-Disposition"] = 'attachment; filename="Appointment.pdf"'
+                     
+     helpers.render_pdf(
+            template=template,
+            file_=response,
+            context=data,
+      )
+    return response
 
 # prescription by doctor
 
@@ -858,18 +865,18 @@ def  prescription(request):
 
      loads=json.loads(request.body)
 
-     id=loads['id']
+     id=loads['Id']
 
      medicine_name=loads['medicine']
 
-     dosage=loads['dosage']
+     dosage=loads['doses']
 
      instruction=loads['instruction']
 
      info=Appointments.objects.get(id=id)
      
      if not medicine_name or not dosage:
-       
+
        return JsonResponse({'message':'All fields are required'},status=400)
      
      else:
@@ -964,7 +971,7 @@ def leftpanel(request):
     
     elif request.user.is_authenticated:
 
-      info=Leftpanel.objects.filter(Patient=True).values('id','Heading','icon')
+      info=Leftpanel.objects.filter(Patient=True).values('id','Heading','icon','Prescription')
 
       data=list(info)
 
@@ -1006,7 +1013,7 @@ def prescriptiondata(request):
 
      id=request.GET.get('id')
 
-     info=Appointments.objects.filter(id=id).values('firstname','lastname','Age','gender')
+     info=Appointments.objects.filter(id=id).values('id','firstname','lastname','Age','gender')
 
      data=list(info)
 
@@ -1020,6 +1027,25 @@ def prescriptiondata(request):
 
     return JsonResponse({'message':'Method not allowed'},status=405)  
   
+def Payment(request):
+
+  if request.method=='POST':
+
+   if request.user.is_authenticated and request.user.is_staffuser:
+
+    data=json.loads(request.body)
+
+    id=data['id']
+
+    fees=data['fees']
+
+    info=Appointments.objects.get(id=id)
+
+    payment.objects.create(fees=fees,appointment=id,firstname=info.firstname,lastname=info.lastname,gender=info.gender,age=info.age)
+
+
+
+    return JsonResponse({'message':'Payment procees initiated'},status=201)
 
 
 
@@ -1035,8 +1061,6 @@ def prescriptiondata(request):
 
 
 
-     
-  
 
 
 

@@ -64,31 +64,35 @@
         }
         .logo {
             text-align: center;
-            margin-top: 20px;
+             /* margin-top: 20px;
            
-            margin-top: 400px;
-        }
+            margin-top: 400px; */
+        } 
         .logo img {
             width: 100px;
             height: auto;
             text-align: center;
 
         }
+        .logo img {
+            width: 100px;
+            height: auto;
+        }
         .tagline {
             color: #d90000;
             font-size: 18px;
-            text-align: center;
             justify-content: center;
-            display: flex;
+            display:flex;
         }
+        
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="header">
-            <!-- <h1>Appointment Confirmation</h1> -->
-            <img  src="https://cdn.dribbble.com/userupload/4295917/file/original-ec80f02f7532b5f8afd04431e4a36cd5.jpg?resize=1200x1200" width="550"  height="100" alt="Hospital Logo"">
-        </div>
+        <!-- <div class="logo">
+             <h1>Appointment Confirmation</h1> -->
+            <!-- <img  src="https://cdn.dribbble.com/userupload/4295917/file/original-ec80f02f7532b5f8afd04431e4a36cd5.jpg?resize=1200x1200" alt="Hospital Logo"> -->
+        <!-- </div> --> 
         <!-- <div class="content">
             <p>Dear {{Firstname}},</p>
             <p>Your appointment with {{Doctor}}</p>
@@ -100,7 +104,10 @@
             </div>
             <p>Please arrive at the hospital on time. If you have any questions or need to reschedule, please contact us at 101.</p>
             <p>We look forward to providing you with the best possible care.</p> -->
-          
+            <div class="basic">
+                {% include "Management/prac.html" %}    
+                </div>
+                
             <div class="logo">
                 <img src="https://cdn.dribbble.com/userupload/4295917/file/original-ec80f02f7532b5f8afd04431e4a36cd5.jpg?resize=1200x1200" alt="Hospital Logo">
 

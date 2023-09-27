@@ -14,7 +14,9 @@ class User(AbstractUser):
 
 class Management(models.Model):
 
-    Title=models.CharField(max_length=200)
+    user=models.ManyToManyField(User)
+
+    title=models.CharField(max_length=200)
 
     status=models.BooleanField(default=False)
 
@@ -22,7 +24,7 @@ class Speciality(models.Model):
 
     department=models.CharField(max_length=200) 
 
-    Status=models.BooleanField(default=False) 
+    status=models.BooleanField(default=False) 
 
     class Meta:
 
@@ -32,7 +34,7 @@ class Speciality(models.Model):
 
 class time(models.Model):
      
-     Time=models.TextField()
+     time=models.TextField()
 
      status=models.BooleanField(default=False)
 
@@ -46,11 +48,11 @@ class Leftpanel(models.Model):
 
     icon=models.CharField(max_length=200,default=True)
 
-    Heading=models.CharField(max_length=200)
+    heading=models.CharField(max_length=200)
 
-    Patient=models.BooleanField(default=False)
+    patient=models.BooleanField(default=False)
 
-    Staff=models.BooleanField(default=False)
+    staff=models.BooleanField(default=False)
 
     status=models.BooleanField(default=False)
 
@@ -121,13 +123,13 @@ class Appointments(models.Model):
 
     lastname=models.CharField(max_length=200)
 
-    Age=models.PositiveSmallIntegerField()
+    age=models.PositiveSmallIntegerField()
 
     problem=models.CharField(max_length=200)
 
     medical=models.TextField(null=True)
 
-    Registerdate=models.DateField()
+    registerdate=models.DateField()
 
     time=models.TextField()
 
@@ -151,13 +153,19 @@ class payment(models.Model) :
 
     appointment=models.ForeignKey(Appointments,on_delete=models.DO_NOTHING,null=True)
 
-    name=models.CharField(max_length=200)
+    firstname=models.CharField(max_length=200)
 
-    Age=models.PositiveSmallIntegerField()
+    lastname=models.CharField(max_length=200)
+
+    age=models.PositiveSmallIntegerField()
 
     gender=models.CharField(max_length=20)
 
     issuetime=models.DateField(auto_now_add=True)
+
+    paymentstatus=models.BooleanField(default=False)
+
+    fees=models.PositiveSmallIntegerField(default=0)
 
     class Meta:
 
