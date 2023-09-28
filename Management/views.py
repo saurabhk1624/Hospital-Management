@@ -6,7 +6,7 @@ from django.http import   JsonResponse
 
 from Hospital import settings
 
-from .models import Leftpanel, Patients, Prescription, Speciality, User,doctors,Appointments, payment,time
+from .models import Leftpanel, Management, Patients, Prescription, Speciality, User,doctors,Appointments, payment,time
 
 from django.contrib.auth import authenticate,login
 
@@ -45,12 +45,6 @@ def patientregister(request):
 
         cpassword=data['confirmpassword']
 
-        # res = not any(firstname)
-
-        # if  res:
-
-        #   return JsonResponse({'message':'field are required'})
-        # else:
 
         if not name or not email or not gender or not age or not password or not firstname or not lastname or not cpassword:
            
@@ -87,12 +81,15 @@ def patientregister(request):
 
                  else:
                
-                  User.objects.create_user(name,email,password)
+                  table= User.objects.create_user(name,email,password)
 
                   Id=User.objects.get(email=email)
                
+                  manage=Management.objects.create(title='Patient')
 
-                  Patients.objects.create(firstname=firstname,lastname=lastname,Age=age,gender=gender,user_id=Id.id,username=name)
+                  manage.user.add(table)
+ 
+                  Patients.objects.create(firstname=firstname,lastname=lastname,age=age,gender=gender,user_id=Id.id,username=name)
 
                   Id.first_name=firstname
                
@@ -101,14 +98,11 @@ def patientregister(request):
                   Id.save()
 
                   return JsonResponse({'message':'Registration Successful'},status=200)
-                 
-                 
-              
+                  
                 else:
 
                  return JsonResponse({'message':'Confirm Password not same'},status=401)
-               
-           
+                      
     else:
       
       return JsonResponse({'message':'Method not allowed'},status=405)
@@ -121,7 +115,7 @@ def department(request):
 
   if request.method=='GET':
 
-    info=Speciality.objects.filter(Status=False).values('id','department')
+    info=Speciality.objects.filter(status=False).values('id','department')
 
     dept=list(info)
 
@@ -151,14 +145,12 @@ def patientlogin(request):
      
      else:
   
-
       user = authenticate(username=username, password=password)
 
       if user  is not None:
         
           login(request,user)
           
-
           return JsonResponse({'message':'Logged in'},status=200)
         
       else:
@@ -235,13 +227,16 @@ def staffregister(request):
        
                 else:
                
-                  User.objects.create_user(name,email,password,is_superuser=True)
+                  table= User.objects.create_user(name,email,password,is_superuser=True)
 
                   user=User.objects.get(email=email)
 
+                  manage=Management.objects.create(title='Patient')
+
+                  manage.user.add(table)
+
                   doctors.objects.create(firstname=firstname,lastname=lastname,gender=gender,special_id=speciality,user_id=user.id,username=name,speciality=special.department)
                
-
                   user.first_name=firstname
 
                   user.last_name=lastname
@@ -306,6 +301,7 @@ def stafflogin(request):
        if user  is not None:
         
            login(request,user)
+           
 
            if user.is_superuser:
 
@@ -316,6 +312,7 @@ def stafflogin(request):
             return JsonResponse({'message':'Stafflogin'},status=200)
           
            else:
+
             return JsonResponse({'message':'Not a staff'},status=200)
 
        else:
@@ -464,9 +461,9 @@ def appointment(request):
       
       if Patients.objects.filter(user=user,exist=False).exists():
        
-        Appointments.objects.create(firstname=info.firstname,doctor_id=doctor,lastname=info.lastname,Age=info.Age,problem=problem,gender=info.gender,Registerdate=date,time=data.Time,medical=medical,patient_id=info.id)
+        Appointments.objects.create(firstname=info.firstname,doctor_id=doctor,lastname=info.lastname,age=info.age,problem=problem,gender=info.gender,registerdate=date,time=data.time,medical=medical,patient_id=info.id)
         
-        info.doctor=doctor
+        info.doctor_id=doctor
         
         info.exist=True
 
@@ -476,9 +473,9 @@ def appointment(request):
       
       else:
 
-        Appointments.objects.create(firstname=info.firstname,doctor_id=doctor,lastname=info.lastname,Age=info.Age,problem=problem,gender=info.gender,Registerdate=date,time=data.Time,new=True,medical=medical,patient_id=info.id)
+        Appointments.objects.create(firstname=info.firstname,doctor_id=doctor,lastname=info.lastname,age=info.age,problem=problem,gender=info.gender,registerdate=date,time=data.time,new=True,medical=medical,patient_id=info.id)
         
-        info.doctor=doctor
+        info.doctor_id=doctor
 
         info.save()
 
@@ -798,7 +795,7 @@ def docappoint(request):
 
     data=doctors.objects.get(user=user)
 
-    info=Appointments.objects.filter(doctor=data.id,new=True,reject=False).values('id','firstname','lastname','age','problem','gender')
+    info=Appointments.objects.filter(doctor=data.id,new=True,reject=False,docapproval=False).values('id','firstname','lastname','age','problem','gender')
 
     patient=list(info)
 
@@ -817,9 +814,10 @@ def docappoint(request):
 
 def render_app(request):
 
-    if request.method=='GET':
-     
-     appointid=request.GET.get('id')
+    if request.method=='POST':
+      
+     db=json.loads(request.body)
+     appointid=db['id']
      
      info=Appointments.objects.get(id=appointid)
       
@@ -861,26 +859,34 @@ def  prescription(request):
     if request.user.is_authenticated and request.user.is_superuser:
 
      loads=json.loads(request.body)
-
-     id=loads['Id']
-
-     medicine_name=loads['medicine']
-
-     dosage=loads['doses']
-
-     instruction=loads['instruction']
-
-     info=Appointments.objects.get(id=id)
      
-     if not medicine_name or not dosage:
+    #  array=loads['medicines']
 
-       return JsonResponse({'message':'All fields are required'},status=400)
-     
-     else:
+     print(loads)
+
+    #  data=list(array)
+
+     for i in loads:
+
+        id=i['Id']
+
+        medicine_name=i['name']
+
+        dosage=i['dose']
+        
+        instruction=i['instructions']
+
+        info=Appointments.objects.get(id=id)
        
-       Prescription.objects.create(medicine_name=medicine_name,instruction=instruction,dosage=dosage,appointment_id=id,patient_id=info.patient_id)
+        if not medicine_name or not dosage or not instruction:
 
-       return JsonResponse({'message':'Prescription added'},status=200)
+          return JsonResponse({'message':'All fields are required'},status=400)
+     
+        else:
+       
+              Prescription.objects.create(medicine_name=medicine_name,instruction=instruction,dosage=dosage,appointment_id=id,patient_id=info.patient_id)
+
+     return JsonResponse({'message':'Prescription added'},status=200)
      
     else :
 
@@ -903,7 +909,7 @@ def prescriptionpdf(request):
 
      id=Patients.objects.get(user=user)
 
-     info=Prescription.objects.filter(patient=id.id).values('appointname','medicine_name','dosage','instruction')
+     info=Prescription.objects.filter(patient=id.id).values('appointment','medicine_name','dosage','instruction')
 
      data=list(info)
 
@@ -952,7 +958,7 @@ def leftpanel(request):
 
     if request.user.is_authenticated and request.user.is_superuser:
 
-      info=Leftpanel.objects.filter(Staff=True).values('id','heading','icon')
+      info=Leftpanel.objects.filter(staff=True).values('id','heading','icon')
 
       data=list(info)
 
@@ -968,7 +974,7 @@ def leftpanel(request):
     
     elif request.user.is_authenticated:
 
-      info=Leftpanel.objects.filter(Patient=True).values('id','heading','icon','prescription')
+      info=Leftpanel.objects.filter(patient=True).values('id','heading','icon')
 
       data=list(info)
 
@@ -993,7 +999,7 @@ def panelrouting(request):
    
     info=Leftpanel.objects.get(id=id)
 
-    return JsonResponse({'message':info.Heading},status=200)   
+    return JsonResponse({'message':info.heading},status=200)   
 
   else:
 
@@ -1031,7 +1037,7 @@ def Payment(request):
 
   if request.method=='POST':
 
-   if request.user.is_authenticated and request.user.is_staffuser:
+   if request.user.is_authenticated and request.user.is_staff:
 
     data=json.loads(request.body)
 
@@ -1041,7 +1047,7 @@ def Payment(request):
 
     info=Appointments.objects.get(id=id)
 
-    payment.objects.create(fees=fees,appointment=id,firstname=info.firstname,lastname=info.lastname,gender=info.gender,age=info.age)
+    payment.objects.create(fees=fees,appointment_id=id,firstname=info.firstname,lastname=info.lastname,gender=info.gender,age=info.age)
 
     return JsonResponse({'message':'Payment procees initiated'},status=201)
    
@@ -1066,7 +1072,13 @@ def payapproval(request):
 
       id=data['id']
 
-      payment.objects.filter(appointment=id).update(paymentstatus=True)
+      info=Appointments.objects.get(id=id)
+
+      payment.objects.filter(appointment_id=id).update(paymentstatus=True)
+
+      info.paystatus=True
+
+      info.save()
 
       return JsonResponse({'message':'Payment Approved'},status=200)
     
@@ -1078,7 +1090,7 @@ def payapproval(request):
 
     return JsonResponse({'message':'Method not allowed'},status=405)  
   
-
+# pdf generation of payment bill
 
 def paymentpdf(request):
 
@@ -1086,33 +1098,69 @@ def paymentpdf(request):
 
     id=request.GET.get('id')
 
-    info=payment.objects.get(appointment=id)
+    if payment.objects.filter(appointment_id=id,paymentstatus=True).exists():
 
-    context={
+      info=payment.objects.get(appointment=id)
+
+      context={
       'firstname':info.firstname,
       'lastname':info.lastname,
       'age':info.age,
-      'gender':info.age,
-      'appointmentid':info.appointment,
+      'gender':info.gender,
+      'appointmentid':info.appointment_id,
       'issuetime':info.issuetime,
       'fees':info.fees
-    }
+     }
 
-    template='Management/payment.html'
+      template='Management/paybase.html'
 
-    response = HttpResponse(content_type="application/pdf")
+      response = HttpResponse(content_type="application/pdf")
     
-    response["Content-Disposition"] = 'attachment; filename="Payment.pdf"'
+      response["Content-Disposition"] = 'inline; filename="Payment.pdf"'
                      
-    render_pdf(
+      render_pdf(
             template=template,
             file_=response,
             context=context,
       )
-    return response
+      return response
+    
+    else:
+
+      return JsonResponse({'message':'Payment yet not done'},status=204)
+    
+  else:
+
+     return JsonResponse({'message':'Method not allowed'},status=405)  
 
 
+# appointments for bill dashboard
 
+def billdash(request):
+
+  if request.method=='GET':
+
+    if request.user.is_authenticated:
+
+      user=request.user.id
+
+      patient=Patients.objects.get(user=user)
+
+      info=Appointments.objects.filter(patient=patient.id,docapproval=True).values('id','registerdate','firstname','medical','paystatus')
+
+      data=list(info)
+
+      return JsonResponse(data,safe=False)
+    
+    else:
+
+      return JsonResponse({'message':'Not authenticated'},status=401)
+    
+
+  else :
+
+    return JsonResponse({'message':'Method not allowed'},status=405)  
+    
 
 
 

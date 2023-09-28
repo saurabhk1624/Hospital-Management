@@ -34,6 +34,11 @@ urlpatterns = [
     path('prescriptiondata/',views.prescriptiondata,name="prescriptiondata"),
     path('Payment/',views.Payment,name="Payment"),
     path('payapproval/',views.payapproval,name="payapproval"),
+    path('paymentpdf/',views.paymentpdf,name="paymentpdf"),
+    path('billdash/',views.billdash,name="billdash"),
+ 
+
+ 
 
 
 

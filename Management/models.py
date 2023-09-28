@@ -100,7 +100,7 @@ class Patients(models.Model):
 
     lastname=models.CharField(max_length=200)
 
-    Age=models.PositiveSmallIntegerField()
+    age=models.PositiveSmallIntegerField()
 
     exist=models.BooleanField(default=False)
 
@@ -143,6 +143,8 @@ class Appointments(models.Model):
 
     reason=models.TextField(max_length=400,null=True)
 
+    paystatus=models.BooleanField(default=False)
+
     
     class Meta:
 
@@ -150,7 +152,7 @@ class Appointments(models.Model):
 
 
 class payment(models.Model) :
-
+    
     appointment=models.ForeignKey(Appointments,on_delete=models.DO_NOTHING,null=True)
 
     firstname=models.CharField(max_length=200)
@@ -161,7 +163,7 @@ class payment(models.Model) :
 
     gender=models.CharField(max_length=20)
 
-    issuetime=models.DateField(auto_now_add=True)
+    issuetime=models.DateTimeField(auto_now_add=True)
 
     paymentstatus=models.BooleanField(default=False)
 
