@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Appointment Confirmation</title>
+    <title>Payment Slip</title>
     <style>
         @page {
              size: 7in 9.25in;
@@ -86,25 +86,13 @@
 </head>
 <body>
     <div class="container">
-        <div >
+       
             <div class="header">
             
             <img  src="https://cdn.dribbble.com/userupload/4295917/file/original-ec80f02f7532b5f8afd04431e4a36cd5.jpg?resize=1200x1200" alt="Hospital Logo">
            </div>
-        <!-- </div> 
-        <div class="content">
-            <p>Dear {{Firstname}},</p>
-            <p>Your appointment with {{Doctor}}</p>
-            <div class="appointment-details">
-                <h2>Date and Time:</h2>
-                <p> {{Time}}</p>
-                <h2>Location:</h2>
-                <strong>KIET</strong>
-            </div>
-            <p>Please arrive at the hospital on time. If you have any questions or need to reschedule, please contact us at 101.</p>
-            <p>We look forward to providing you with the best possible care.</p> -->
             <div class="basic">
-                {% include "Management/prac.html" %}    
+                {% include "Management/payment.html" %}    
                 </div>
                 
             <div class="logo">

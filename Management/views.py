@@ -1,13 +1,10 @@
-import io
 import json
 
 import re
-# from django import views
 
-from django.http import  FileResponse, JsonResponse
+from django.http import   JsonResponse
 
 from Hospital import settings
-
 
 from .models import Leftpanel, Patients, Prescription, Speciality, User,doctors,Appointments, payment,time
 
@@ -17,11 +14,11 @@ from django.http import HttpResponse
 
 from django.template.loader import render_to_string
 
-from django_renderpdf import helpers
+from django_renderpdf.helpers import render_pdf
 
 from django.core.mail import send_mail
 
-from io import BytesIO
+
 
 
 # Registartion of patient
@@ -348,7 +345,7 @@ def patient(request):
 
     user=request.user.id
 
-    patientinfo=Patients.objects.filter(user_id=user).values('username','firstname','lastname','Age','gender')
+    patientinfo=Patients.objects.filter(user_id=user).values('username','firstname','lastname','age','gender')
 
     info=list(patientinfo)
 
@@ -417,7 +414,7 @@ def schedule(request):
 
   if request.method=='GET':
 
-    info=time.objects.filter(status=False).values('id','Time')
+    info=time.objects.filter(status=False).values('id','time')
 
     data=list(info)
 
@@ -504,7 +501,7 @@ def showpatient(request):
 
   if request.method=='GET':
 
-    info=Patients.objects.all().values('user_id','firstname','lastname','Age','gender')
+    info=Patients.objects.all().values('user_id','firstname','lastname','age','gender')
 
     patient=list(info)
 
@@ -527,7 +524,7 @@ def patientappoint(request):
     
     data=Patients.objects.get(user=user)
 
-    info=Appointments.objects.filter(patient=data.id,docapproval=True).values('id','firstname','lastname','Age','gender')
+    info=Appointments.objects.filter(patient=data.id,docapproval=True).values('id','firstname','lastname','age','gender')
 
     appointment=list(info)
 
@@ -580,7 +577,7 @@ def doctorpatients(request):
    
     doctorid=request.GET.get('id')
 
-    info=Patients.objects.filter(doctor_id=doctorid).values('firstname','lastname','Age','gender')
+    info=Patients.objects.filter(doctor_id=doctorid).values('firstname','lastname','age','gender')
 
     patients=list(info)
 
@@ -610,7 +607,7 @@ def doctordash(request):
     
     data=doctors.objects.get(user=user)
    
-    info=Patients.objects.filter(doctor=data.id).values('username','firstname','lastname','Age','gender')
+    info=Patients.objects.filter(doctor=data.id).values('username','firstname','lastname','age','gender')
 
     patients=list(info)
 
@@ -637,7 +634,7 @@ def individualpatient(request):
 
     patientid=request.GET.get('patientid')
 
-    info=Patients.objects.filter(id=patientid).values('firstname','lastname','Age','gender')
+    info=Patients.objects.filter(id=patientid).values('firstname','lastname','age','gender')
 
     patient=list(info)
 
@@ -683,11 +680,11 @@ def recepapproval(request):
        'Appointmentno':info.id,
        'Firstname':info.firstname,
        'Lastname':info.lastname,
-       'Age':info.Age,
+       'Age':info.age,
        'Problem':info.problem,
        'Gender':info.gender,
        'Doctor':Doc.firstname,
-        'Time':info.Registerdate
+        'Time':info.registerdate
        }
     subject='Regarding Appointment Status'
 
@@ -735,11 +732,11 @@ def recepapproval(request):
        'Appointmentno':info.id,
        'Firstname':info.firstname,
        'Lastname':info.lastname,
-       'Age':info.Age,
+       'Age':info.age,
        'Problem':info.problem,
        'Gender':info.gender,
        'Doctor':Doc.firstname,
-        'Time':info.Registerdate
+        'Time':info.registerdate
        }
     subject='Regarding Appointment Status'
 
@@ -747,7 +744,7 @@ def recepapproval(request):
 
     to_list=[email.email,]
      
-    m='Your Appointment has been approved'
+    m='Your Appointment has been rejected'
 
     message=render_to_string('Management/Rejection.html',context=data)
 
@@ -773,7 +770,7 @@ def recepappoint(request):
       
      if request.user.is_staff and request.user.is_authenticated:
 
-      info=Appointments.objects.filter(new=False,reject=False).values('id','firstname','lastname','Age','problem','gender')
+      info=Appointments.objects.filter(new=False,reject=False).values('id','firstname','lastname','age','problem','gender')
 
       patient=list(info)
 
@@ -801,7 +798,7 @@ def docappoint(request):
 
     data=doctors.objects.get(user=user)
 
-    info=Appointments.objects.filter(doctor=data.id,new=True,reject=False).values('id','firstname','lastname','Age','problem','gender')
+    info=Appointments.objects.filter(doctor=data.id,new=True,reject=False).values('id','firstname','lastname','age','problem','gender')
 
     patient=list(info)
 
@@ -834,11 +831,11 @@ def render_app(request):
        'Appointmentno':info.id,
        'Firstname':info.firstname,
        'Lastname':info.lastname,
-       'Age':info.Age,
+       'Age':info.age,
        'Problem':info.problem,
        'Gender':info.gender,
        'Doctor':Doc.firstname,
-       'Date':info.Registerdate
+       'Date':info.registerdate
 
        }
     
@@ -848,7 +845,7 @@ def render_app(request):
     
      response["Content-Disposition"] = 'attachment; filename="Appointment.pdf"'
                      
-     helpers.render_pdf(
+     render_pdf(
             template=template,
             file_=response,
             context=data,
@@ -955,7 +952,7 @@ def leftpanel(request):
 
     if request.user.is_authenticated and request.user.is_superuser:
 
-      info=Leftpanel.objects.filter(Staff=True).values('id','Heading','icon')
+      info=Leftpanel.objects.filter(Staff=True).values('id','heading','icon')
 
       data=list(info)
 
@@ -963,7 +960,7 @@ def leftpanel(request):
    
     elif request.user.is_authenticated and request.user.is_staff:
 
-      info=Leftpanel.objects.all().values('id','Heading','icon')
+      info=Leftpanel.objects.all().values('id','heading','icon')
 
       data=list(info)
 
@@ -971,7 +968,7 @@ def leftpanel(request):
     
     elif request.user.is_authenticated:
 
-      info=Leftpanel.objects.filter(Patient=True).values('id','Heading','icon','Prescription')
+      info=Leftpanel.objects.filter(Patient=True).values('id','heading','icon','prescription')
 
       data=list(info)
 
@@ -1013,7 +1010,7 @@ def prescriptiondata(request):
 
      id=request.GET.get('id')
 
-     info=Appointments.objects.filter(id=id).values('id','firstname','lastname','Age','gender')
+     info=Appointments.objects.filter(id=id).values('id','firstname','lastname','age','gender')
 
      data=list(info)
 
@@ -1026,6 +1023,9 @@ def prescriptiondata(request):
   else:
 
     return JsonResponse({'message':'Method not allowed'},status=405)  
+  
+
+  # for initiating proceess of payment by receptionist 
   
 def Payment(request):
 
@@ -1043,16 +1043,73 @@ def Payment(request):
 
     payment.objects.create(fees=fees,appointment=id,firstname=info.firstname,lastname=info.lastname,gender=info.gender,age=info.age)
 
-
-
     return JsonResponse({'message':'Payment procees initiated'},status=201)
+   
+   else:
+     
+     return JsonResponse({'message':'User is not receptionist'},status=401)
+   
+  else:
+
+    return JsonResponse({'message':'Method not allowed'},status=405) 
+    
+  
+# for payment at patient's end
+
+def payapproval(request):
+
+  if request.method=='PUT':
+
+    if request.user.is_authenticated:
+
+      data=json.loads(request.body)
+
+      id=data['id']
+
+      payment.objects.filter(appointment=id).update(paymentstatus=True)
+
+      return JsonResponse({'message':'Payment Approved'},status=200)
+    
+    else:
+
+      return JsonResponse({'message':'Not authenticated'},status=401)
+    
+  else:
+
+    return JsonResponse({'message':'Method not allowed'},status=405)  
+  
 
 
+def paymentpdf(request):
 
+  if request.method=='GET':
 
+    id=request.GET.get('id')
 
+    info=payment.objects.get(appointment=id)
 
+    context={
+      'firstname':info.firstname,
+      'lastname':info.lastname,
+      'age':info.age,
+      'gender':info.age,
+      'appointmentid':info.appointment,
+      'issuetime':info.issuetime,
+      'fees':info.fees
+    }
 
+    template='Management/payment.html'
+
+    response = HttpResponse(content_type="application/pdf")
+    
+    response["Content-Disposition"] = 'attachment; filename="Payment.pdf"'
+                     
+    render_pdf(
+            template=template,
+            file_=response,
+            context=context,
+      )
+    return response
 
 
 

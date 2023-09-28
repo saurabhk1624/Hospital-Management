@@ -32,5 +32,9 @@ urlpatterns = [
     path('leftpanel/',views.leftpanel,name="leftpanel"),
     path('panelrouting/',views.panelrouting,name="panelrouting"),
     path('prescriptiondata/',views.prescriptiondata,name="prescriptiondata"),
+    path('Payment/',views.Payment,name="Payment"),
+    path('payapproval/',views.payapproval,name="payapproval"),
+
+
 
 ]
