@@ -54,6 +54,8 @@ class Leftpanel(models.Model):
 
     staff=models.BooleanField(default=False)
 
+    doctor=models.BooleanField(default=False)
+
     status=models.BooleanField(default=False)
 
     class Meta:
@@ -140,6 +142,8 @@ class Appointments(models.Model):
     reject=models.BooleanField(default=False)
 
     docapproval=models.BooleanField(default=False)
+
+    recepapproval=models.BooleanField(default=False)
 
     reason=models.TextField(max_length=400,null=True)
 

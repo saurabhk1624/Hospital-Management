@@ -302,12 +302,15 @@ def stafflogin(request):
         
            login(request,user)
            
+           id=request.user.id
 
-           if user.is_superuser:
+           info=Management.objects.get(user=id)
+
+           if info.title=='Doctor':
 
             return JsonResponse({'message':'Doctor'},status=200)
           
-           elif user.is_staff:
+           elif info.title=='Receptionist':
 
             return JsonResponse({'message':'Stafflogin'},status=200)
           
@@ -363,15 +366,23 @@ def doctor(request):
 
   if request.method=='GET':
 
-   if request.user.is_authenticated and request.user.is_superuser:
+   if request.user.is_authenticated :
 
     user=request.user.id
 
-    patientinfo=doctors.objects.filter(user_id=user).values('username','firstname','lastname','gender')
+    role=Management.objects.get(user=user)
+ 
+    if role.title=='Doctor':
+    
+     patientinfo=doctors.objects.filter(user_id=user).values('username','firstname','lastname','gender')
 
-    info=list(patientinfo)
+     info=list(patientinfo)
 
-    return JsonResponse(info,safe=False)
+     return JsonResponse(info,safe=False)
+    
+    else:
+
+      return JsonResponse({'message':'Not a doctor'},status=403)
   
    else:
      
@@ -387,15 +398,24 @@ def reception(request):
 
   if request.method=='GET':
 
-   if request.user.is_authenticated and request.user.is_staff:
+   if request.user.is_authenticated :
 
     user=request.user.id
 
-    patientinfo=doctors.objects.filter(user_id=user).values('username','firstname','lastname','gender')
+    role=Management.objects.get(user=user)
+ 
+    if role.title=='Receptionist':  
+      
+      patientinfo=doctors.objects.filter(user_id=user).values('username','firstname','lastname','gender')
 
-    info=list(patientinfo)
+      info=list(patientinfo)
 
-    return JsonResponse(info,safe=False)
+      return JsonResponse(info,safe=False) 
+    
+    else:
+
+      return JsonResponse({'message':'Not a Staff'},status=403)
+   
   
    else:
      
@@ -449,7 +469,7 @@ def appointment(request):
 
     user=request.user.id
     
-    doc=doctors.objects.get(id=doctor)
+    # doc=doctors.objects.get(id=doctor)
 
     info=Patients.objects.get(user=user)
 
@@ -521,7 +541,7 @@ def patientappoint(request):
     
     data=Patients.objects.get(user=user)
 
-    info=Appointments.objects.filter(patient=data.id,docapproval=True).values('id','firstname','lastname','age','gender')
+    info=Appointments.objects.filter(patient=data.id,docapproval=True,paystatus=False,recepapproval=True).values('id','firstname','lastname','age','gender')
 
     appointment=list(info)
 
@@ -544,13 +564,23 @@ def showdoctor(request):
 
   if request.method=='GET':
 
-   if request.user.is_staff and request.user.is_authenticated:  
+   if request.user.is_authenticated:
 
-    info=doctors.objects.filter(reception=False).values('firstname','lastname','gender','user','speciality')
+    user=request.user.id  
 
-    doctor=list(info)
+    role=Management.objects.get(user=user)
+ 
+    if role.title=='Receptionist':
 
-    return JsonResponse(doctor,safe=False)
+      info=doctors.objects.filter(reception=False).values('firstname','lastname','gender','user','speciality')
+
+      doctor=list(info)
+
+      return JsonResponse(doctor,safe=False)
+    
+    else:
+
+      return JsonResponse({'message':'Not a staff'},status=403)
    
    else:
      
@@ -570,19 +600,30 @@ def doctorpatients(request):
 
   if request.method=='GET':
     
-   if request.user.is_superuser and request.user.is_authenticated: 
+   if request.user.is_authenticated: 
+
+    user=request.user.id  
+
+    role=Management.objects.get(user=user)
+ 
+    if role.title=='Receptionist':
+
    
-    doctorid=request.GET.get('id')
+     doctorid=request.GET.get('id')
 
-    info=Patients.objects.filter(doctor_id=doctorid).values('firstname','lastname','age','gender')
+     info=Patients.objects.filter(doctor_id=doctorid).values('firstname','lastname','age','gender')
 
-    patients=list(info)
+     patients=list(info)
 
-    return JsonResponse(patients,safe=False)
+     return JsonResponse(patients,safe=False)
+    
+    else:
+
+      return JsonResponse({'message':'Not a staff'},status=403)
   
    else:
      
-     return JsonResponse({'message':'Not a Doctor'},status=400) 
+     return JsonResponse({'message':'Not authenticated'},status=401) 
   
   
   else:
@@ -598,21 +639,29 @@ def doctordash(request):
 
   if request.method=='GET':
 
-   if request.user.is_superuser and request.user.is_authenticated: 
+   if request.user.is_authenticated: 
 
-    user=request.user.id
+    user=request.user.id  
+
+    role=Management.objects.get(user=user)
+ 
+    if role.title=='Doctor':
     
-    data=doctors.objects.get(user=user)
+     data=doctors.objects.get(user=user)
    
-    info=Patients.objects.filter(doctor=data.id).values('username','firstname','lastname','age','gender')
+     info=Patients.objects.filter(doctor=data.id).values('username','firstname','lastname','age','gender')
 
-    patients=list(info)
+     patients=list(info)
 
-    return JsonResponse(patients,safe=False)
+     return JsonResponse(patients,safe=False)
+    
+    else:
+
+      return JsonResponse({'message':'Not a doctor'},status=403)
    
    else:
      
-     return JsonResponse({'message':'Not a Doctor'},status=400)
+     return JsonResponse({'message':'Not authenticated'},status=401)
   
   else:
 
@@ -627,19 +676,29 @@ def individualpatient(request):
 
   if request.method=='GET':
    
-   if request.user.is_superuser and request.user.is_authenticated:
+   if request.user.is_authenticated:
 
-    patientid=request.GET.get('patientid')
+    user=request.user.id  
 
-    info=Patients.objects.filter(id=patientid).values('firstname','lastname','age','gender')
+    role=Management.objects.get(user=user)
+ 
+    if role.title=='Doctor':
 
-    patient=list(info)
+     patientid=request.GET.get('patientid')
 
-    return JsonResponse(patient,safe=False)
+     info=Patients.objects.filter(id=patientid).values('firstname','lastname','age','gender')
+ 
+     patient=list(info)
+
+     return JsonResponse(patient,safe=False)
+    
+    else:
+
+      return JsonResponse({'message':'Not a doctor'},status=403)
    
    else:
      
-     return JsonResponse({'message':'Not a Doctor'},status=400)
+     return JsonResponse({'message':'Not authenticated'},status=401)
   
   else:
 
@@ -652,28 +711,31 @@ def recepapproval(request):
 
   if request.method=='PUT':
    
-   if request.user.is_staff and request.user.is_authenticated:
+   if  request.user.is_authenticated:
 
-    data=json.loads(request.body)
+    user=request.user.id  
 
-    appointid=data['id']
+    role=Management.objects.get(user=user)
+ 
+    if role.title=='Receptionist':
 
-    reason=data['reason']
+     data=json.loads(request.body)
 
-    Appointments.objects.filter(id=appointid).update(docapproval=True,reason=reason)
+     appointid=data['id']
 
-    info=Appointments.objects.get(id=appointid)
-      
+     reason=data['reason']
+
+     Appointments.objects.filter(id=appointid).update(receparroval=True,reason=reason)
+
+     info=Appointments.objects.get(id=appointid)
+        
+     loads=Patients.objects.get(id=info.patient_id)
+ 
+     email=User.objects.get(id=loads.user_id)
     
-    loads=Patients.objects.get(id=info.patient_id)
+     Doc=doctors.objects.get(id=loads.doctor_id)
 
-    email=User.objects.get(id=loads.user_id)
-    
-
-    Doc=doctors.objects.get(id=loads.doctor_id)
-
-
-    data={
+     data={
        'Appointmentno':info.id,
        'Firstname':info.firstname,
        'Lastname':info.lastname,
@@ -682,50 +744,61 @@ def recepapproval(request):
        'Gender':info.gender,
        'Doctor':Doc.firstname,
         'Time':info.registerdate
+        
        }
-    subject='Regarding Appointment Status'
+     subject='Regarding Appointment Status'
 
-    from_email=settings.EMAIL_HOST_USER
+     from_email=settings.EMAIL_HOST_USER
 
-    to_list=[email.email,]
+     to_list=[email.email,]
      
-    m='Your Appointment has been approved'
+     m='Your Appointment has been approved'
 
-    message=render_to_string('Management/email.html',context=data)
+     message=render_to_string('Management/email.html',context=data)
 
 
-    send_mail(subject,message=m,from_email=from_email,recipient_list=to_list,html_message=message,fail_silently=False)
+     send_mail(subject,message=m,from_email=from_email,recipient_list=to_list,html_message=message,fail_silently=False)
 
-    return JsonResponse({'message':'Appointment approved'},status=200)
+     return JsonResponse({'message':'Appointment approved'},status=200)
+    
+    else:
+
+      return JsonResponse({'message':'Not a staff'},status=403)
    
    else:
      
-     return JsonResponse({'message':'Not a Staff'},status=400) 
+     return JsonResponse({'message':'Not authenticated'},status=401) 
   
   elif request.method=='DELETE':
 
-   if request.user.is_staff and request.user.is_authenticated:
-    
-    data1=json.loads(request.body)
+   if request.user.is_authenticated:
 
-    appointid=data1['id']
+    user=request.user.id
 
-    reason=data1['reason']
+    role=Management.objects.get(user=user)
+ 
+    if role.title=='Receptionist':  
+ 
+     data1=json.loads(request.body)
 
-    Appointments.objects.filter(id=appointid).update(reject=True,reason=reason)
+     appointid=data1['id']
 
-    info=Appointments.objects.get(id=appointid)
+     reason=data1['reason']
+
+     Appointments.objects.filter(id=appointid).update(reject=True,reason=reason)
+
+     info=Appointments.objects.get(id=appointid)
       
     
-    loads=Patients.objects.get(id=info.patient_id)
+     loads=Patients.objects.get(id=info.patient_id)
 
-    email=User.objects.get(id=loads.user_id)
+     email=User.objects.get(id=loads.user_id)
     
 
-    Doc=doctors.objects.get(id=loads.doctor_id)
+     Doc=doctors.objects.get(id=loads.doctor_id)
 
 
-    data={
+     data={
        'Appointmentno':info.id,
        'Firstname':info.firstname,
        'Lastname':info.lastname,
@@ -733,26 +806,31 @@ def recepapproval(request):
        'Problem':info.problem,
        'Gender':info.gender,
        'Doctor':Doc.firstname,
-        'Time':info.registerdate
+        'Time':info.registerdate,
+        'reason':info.reason
        }
-    subject='Regarding Appointment Status'
+     subject='Regarding Appointment Status'
 
-    from_email=settings.EMAIL_HOST_USER
+     from_email=settings.EMAIL_HOST_USER
 
-    to_list=[email.email,]
+     to_list=[email.email,]
      
-    m='Your Appointment has been rejected'
+     m='Your Appointment has been rejected'
 
-    message=render_to_string('Management/Rejection.html',context=data)
+     message=render_to_string('Management/Rejection.html',context=data)
 
 
-    send_mail(subject,message=m,from_email=from_email,recipient_list=to_list,html_message=message,fail_silently=False)
+     send_mail(subject,message=m,from_email=from_email,recipient_list=to_list,html_message=message,fail_silently=False)
 
-    return JsonResponse({'message':'Appointment rejected'},status=200)
+     return JsonResponse({'message':'Appointment rejected'},status=200)
+    
+    else:
+
+      return JsonResponse({'message':'Not a Staff'},status=403)
    
    else:
      
-     return JsonResponse({'message':'Not a Staff'},status=400) 
+     return JsonResponse({'message':'Not authenticated'},status=401) 
   
   else:
 
@@ -765,17 +843,28 @@ def recepappoint(request):
 
     if request.method=='GET':
       
-     if request.user.is_staff and request.user.is_authenticated:
+     if request.user.is_authenticated:
 
-      info=Appointments.objects.filter(new=False,reject=False).values('id','firstname','lastname','age','problem','gender')
+       user=request.user.id
 
-      patient=list(info)
+       role=Management.objects.get(user=user)
+  
+       if role.title=='Receptionist':  
 
-      return JsonResponse(patient,safe=False)
+
+        info=Appointments.objects.filter(reject=False,paystatus=False,docapproval=False,recepapproval=False).values('id','firstname','lastname','age','problem','gender')
+
+        patient=list(info)
+
+        return JsonResponse(patient,safe=False)
+       
+       else:
+         
+         return JsonResponse({'message':'Not a staff'},status=403)
      
      else:
      
-      return JsonResponse({'message':'Not a Doctor'},status=400)  
+      return JsonResponse({'message':'Not authenticated'},status=401)  
     
     else :
 
@@ -789,21 +878,32 @@ def docappoint(request):
 
   if request.method=='GET':
 
-   if request.user.is_superuser and request.user.is_authenticated:
+   if  request.user.is_authenticated:
 
     user=request.user.id
 
-    data=doctors.objects.get(user=user)
+    #  user=request.user.id
 
-    info=Appointments.objects.filter(doctor=data.id,new=True,reject=False,docapproval=False).values('id','firstname','lastname','age','problem','gender')
+    role=Management.objects.get(user=user)
+ 
+    if role.title=='Doctor':  
 
-    patient=list(info)
 
-    return JsonResponse(patient,safe=False)
+     data=doctors.objects.get(user=user)
+
+     info=Appointments.objects.filter(doctor=data.id,reject=False,docapproval=False,recepapproval=True).values('id','firstname','lastname','age','problem','gender')
+
+     patient=list(info)
+
+     return JsonResponse(patient,safe=False)
+    
+    else:
+
+      return JsonResponse({'message':'Not a doctor'},status=403)
    
    else:
      
-     return JsonResponse({'message':'Not a Doctor'},status=400) 
+     return JsonResponse({'message':'Not authenticated'},status=401) 
   
   else :
 
@@ -817,6 +917,7 @@ def render_app(request):
     if request.method=='POST':
       
      db=json.loads(request.body)
+
      appointid=db['id']
      
      info=Appointments.objects.get(id=appointid)
@@ -856,17 +957,18 @@ def  prescription(request):
 
   if request.method=='POST':
     
-    if request.user.is_authenticated and request.user.is_superuser:
+    if request.user.is_authenticated :
 
-     loads=json.loads(request.body)
-     
-    #  array=loads['medicines']
+     user=request.user.id
 
-     print(loads)
+     role=Management.objects.get(user=user)
+ 
+     if role.title=='Doctor':  
 
-    #  data=list(array)
 
-     for i in loads:
+      loads=json.loads(request.body)
+
+      for i in loads:
 
         id=i['Id']
 
@@ -886,11 +988,15 @@ def  prescription(request):
        
               Prescription.objects.create(medicine_name=medicine_name,instruction=instruction,dosage=dosage,appointment_id=id,patient_id=info.patient_id)
 
-     return JsonResponse({'message':'Prescription added'},status=200)
+      return JsonResponse({'message':'Prescription added'},status=200)
+     
+     else:
+       
+       return JsonResponse({'message':'Not a doctor'},status=403)
      
     else :
 
-      return JsonResponse({'message':'User is not doctor'},status=403)
+      return JsonResponse({'message':'User is not authenticated'},status=401)
     
   else:
 
@@ -956,29 +1062,37 @@ def leftpanel(request):
 
   if request.method=='GET':
 
-    if request.user.is_authenticated and request.user.is_superuser:
+    if request.user.is_authenticated :
 
-      info=Leftpanel.objects.filter(staff=True).values('id','heading','icon')
+       user=request.user.id
 
-      data=list(info)
+       role=Management.objects.get(user=user)
+ 
+       if role.title=='Doctor':  
 
-      return JsonResponse(data,safe=False)
-   
-    elif request.user.is_authenticated and request.user.is_staff:
 
-      info=Leftpanel.objects.all().values('id','heading','icon')
+         info=Leftpanel.objects.filter(doctor=True).values('id','heading','icon')
 
-      data=list(info)
+         data=list(info)
 
-      return JsonResponse(data,safe=False)
+         return JsonResponse(data,safe=False)
+       
+ 
+       elif role.title=='Receptionist':  
+
+        info=Leftpanel.objects.filter(staff=True).values('id','heading','icon')
+
+        data=list(info)
+
+        return JsonResponse(data,safe=False)
     
-    elif request.user.is_authenticated:
+       elif request.user.is_authenticated:
 
-      info=Leftpanel.objects.filter(patient=True).values('id','heading','icon')
+         info=Leftpanel.objects.filter(patient=True).values('id','heading','icon')
 
-      data=list(info)
+         data=list(info)
 
-      return JsonResponse(data,safe=False)
+         return JsonResponse(data,safe=False)
    
     else:
 
@@ -1012,15 +1126,26 @@ def prescriptiondata(request):
 
   if request.method=='GET':
 
-    if request.user.is_authenticated and request.user.is_superuser:
+    if request.user.is_authenticated:
+     
+      user=request.user.id
 
-     id=request.GET.get('id')
+      role=Management.objects.get(user=user)
+ 
+      if role.title=='Doctor':  
 
-     info=Appointments.objects.filter(id=id).values('id','firstname','lastname','age','gender')
 
-     data=list(info)
+        id=request.GET.get('id')
 
-     return JsonResponse(data,safe=False)
+        info=Appointments.objects.filter(id=id).values('id','firstname','lastname','age','gender')
+
+        data=list(info)
+
+        return JsonResponse(data,safe=False)
+      
+      else:
+
+        return JsonResponse({'message':'Not a doctor'},status=403)
     
     else:
 
@@ -1037,23 +1162,33 @@ def Payment(request):
 
   if request.method=='POST':
 
-   if request.user.is_authenticated and request.user.is_staff:
+   if request.user.is_authenticated :
 
-    data=json.loads(request.body)
+     user=request.user.id
 
-    id=data['id']
+     role=Management.objects.get(user=user)
+ 
+     if role.title=='Receptionist':  
 
-    fees=data['fees']
+       data=json.loads(request.body)
 
-    info=Appointments.objects.get(id=id)
+       id=data['id']
+   
+       fees=data['payment']
 
-    payment.objects.create(fees=fees,appointment_id=id,firstname=info.firstname,lastname=info.lastname,gender=info.gender,age=info.age)
-
-    return JsonResponse({'message':'Payment procees initiated'},status=201)
+       info=Appointments.objects.get(id=id)
+  
+       payment.objects.create(fees=fees,appointment_id=id,firstname=info.firstname,lastname=info.lastname,gender=info.gender,age=info.age)
+  
+       return JsonResponse({'message':'Payment procees initiated'},status=201)
+     
+     else:
+       
+       return JsonResponse({'mesage':'Not a receptionist'},status=403)
    
    else:
      
-     return JsonResponse({'message':'User is not receptionist'},status=401)
+     return JsonResponse({'message':'User is not authenticated'},status=401)
    
   else:
 
@@ -1096,38 +1231,45 @@ def paymentpdf(request):
 
   if request.method=='GET':
 
-    id=request.GET.get('id')
+    if request.user.is_authenticated:
 
-    if payment.objects.filter(appointment_id=id,paymentstatus=True).exists():
-
-      info=payment.objects.get(appointment=id)
-
-      context={
-      'firstname':info.firstname,
-      'lastname':info.lastname,
-      'age':info.age,
-      'gender':info.gender,
-      'appointmentid':info.appointment_id,
-      'issuetime':info.issuetime,
-      'fees':info.fees
-     }
-
-      template='Management/paybase.html'
-
-      response = HttpResponse(content_type="application/pdf")
+      id=request.GET.get('id')
     
-      response["Content-Disposition"] = 'attachement; filename="Payment.pdf"'
+      if payment.objects.filter(appointment_id=id,paymentstatus=True).exists():
+
+        info=payment.objects.get(appointment=id)
+  
+        context={
+        'firstname':info.firstname,
+        'lastname':info.lastname,
+        'age':info.age,
+        'gender':info.gender,
+        'appointmentid':info.appointment_id,
+        'issuetime':info.issuetime,
+        'fees':info.fees
+        }
+
+        template='Management/paybase.html'
+
+        response = HttpResponse(content_type="application/pdf")
+    
+        response["Content-Disposition"] = 'attachement; filename="Payment.pdf"'
                      
-      render_pdf(
-            template=template,
+        render_pdf(
+             template=template,
             file_=response,
             context=context,
-      )
-      return response
+         )
+        return response
     
+    
+      else:
+
+       return JsonResponse({'message':'Payment yet not done'},status=204)
+     
     else:
 
-      return JsonResponse({'message':'Payment yet not done'},status=204)
+      return JsonResponse({'message':'Not authenticated'},status=401)   
     
   else:
 
@@ -1161,6 +1303,37 @@ def billdash(request):
     return JsonResponse({'message':'Method not allowed'},status=405)  
     
 
+#  Api for all appointment payment
+
+def appointpayment(request):
+
+  if request.method=='GET':
+
+    if request.user.is_authenticated :
+
+      user=request.user.id
+
+      role=Management.objects.get(user=user)
+ 
+      if role.title=='Receptionist':  
+
+        info=Appointments.objects.filter(paystatus=False,docapproval=True).values('id','firstname','lastname','gender','age','problem')
+
+        data=list(info)
+
+        return JsonResponse(data,safe=False)
+      
+      else:
+
+        return JsonResponse({'message':'Not a staff'},status=403)
+    
+    else :
+
+      return JsonResponse({'message':'Not authenticated'},status=401)
+    
+  else:
+
+    return JsonResponse({'message':'Method not allowed'},status=405)  
 
 
 

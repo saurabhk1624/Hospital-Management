@@ -36,6 +36,7 @@ urlpatterns = [
     path('payapproval/',views.payapproval,name="payapproval"),
     path('paymentpdf/',views.paymentpdf,name="paymentpdf"),
     path('billdash/',views.billdash,name="billdash"),
+    path('appointpayment/',views.appointpayment,name="appointpayment"),
  
 
  
