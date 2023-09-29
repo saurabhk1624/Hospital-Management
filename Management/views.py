@@ -1116,7 +1116,7 @@ def paymentpdf(request):
 
       response = HttpResponse(content_type="application/pdf")
     
-      response["Content-Disposition"] = 'inline; filename="Payment.pdf"'
+      response["Content-Disposition"] = 'attachement; filename="Payment.pdf"'
                      
       render_pdf(
             template=template,
@@ -1154,8 +1154,7 @@ def billdash(request):
     
     else:
 
-      return JsonResponse({'message':'Not authenticated'},status=401)
-    
+      return JsonResponse({'message':'Not authenticated'},status=401) 
 
   else :
 
