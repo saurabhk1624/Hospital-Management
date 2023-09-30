@@ -37,6 +37,14 @@ urlpatterns = [
     path('paymentpdf/',views.paymentpdf,name="paymentpdf"),
     path('billdash/',views.billdash,name="billdash"),
     path('appointpayment/',views.appointpayment,name="appointpayment"),
+    path('docapproval/',views.docapproval,name="docapproval"),
+    path('recepreject/',views.recepreject,name="recepreject"),
+    path('docreject/',views.docreject,name="docreject"),
+    path('updateappoint/',views.updateappoint,name="updateappoint"),
+    path('chart/',views.chart,name="chart"),
+ 
+  
+ 
  
 
  

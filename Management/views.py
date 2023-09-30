@@ -85,7 +85,7 @@ def patientregister(request):
 
                   Id=User.objects.get(email=email)
                
-                  manage=Management.objects.create(title='Patient')
+                  manage=Management.objects.get(title='Patient')
 
                   manage.user.add(table)
  
@@ -231,7 +231,7 @@ def staffregister(request):
 
                   user=User.objects.get(email=email)
 
-                  manage=Management.objects.create(title='Patient')
+                  manage=Management.objects.get(title='Doctor')
 
                   manage.user.add(table)
 
@@ -468,8 +468,6 @@ def appointment(request):
     data=time.objects.get(id=Time)
 
     user=request.user.id
-    
-    # doc=doctors.objects.get(id=doctor)
 
     info=Patients.objects.get(user=user)
 
@@ -608,7 +606,6 @@ def doctorpatients(request):
  
     if role.title=='Receptionist':
 
-   
      doctorid=request.GET.get('id')
 
      info=Patients.objects.filter(doctor_id=doctorid).values('firstname','lastname','age','gender')
@@ -640,7 +637,7 @@ def doctordash(request):
   if request.method=='GET':
 
    if request.user.is_authenticated: 
-
+ 
     user=request.user.id  
 
     role=Management.objects.get(user=user)
@@ -723,9 +720,9 @@ def recepapproval(request):
 
      appointid=data['id']
 
-     reason=data['reason']
+    #  reason=data['reason']
 
-     Appointments.objects.filter(id=appointid).update(receparroval=True,reason=reason)
+     Appointments.objects.filter(id=appointid).update(recepapproval=True)
 
      info=Appointments.objects.get(id=appointid)
         
@@ -768,8 +765,15 @@ def recepapproval(request):
    else:
      
      return JsonResponse({'message':'Not authenticated'},status=401) 
+  else:
   
-  elif request.method=='DELETE':
+   return JsonResponse({'message':'Method not allowed'},status=405)
+
+
+   
+def recepreject(request):  
+  
+  if request.method=='PUT':
 
    if request.user.is_authenticated:
 
@@ -788,7 +792,6 @@ def recepapproval(request):
      Appointments.objects.filter(id=appointid).update(reject=True,reason=reason)
 
      info=Appointments.objects.get(id=appointid)
-      
     
      loads=Patients.objects.get(id=info.patient_id)
 
@@ -817,7 +820,7 @@ def recepapproval(request):
      
      m='Your Appointment has been rejected'
 
-     message=render_to_string('Management/Rejection.html',context=data)
+     message=render_to_string('Management/rejection.html',context=data)
 
 
      send_mail(subject,message=m,from_email=from_email,recipient_list=to_list,html_message=message,fail_silently=False)
@@ -851,8 +854,7 @@ def recepappoint(request):
   
        if role.title=='Receptionist':  
 
-
-        info=Appointments.objects.filter(reject=False,paystatus=False,docapproval=False,recepapproval=False).values('id','firstname','lastname','age','problem','gender')
+        info=Appointments.objects.filter(reject=False,docapproval=False,recepapproval=False).values('id','firstname','lastname','age','problem','gender')
 
         patient=list(info)
 
@@ -891,7 +893,7 @@ def docappoint(request):
 
      data=doctors.objects.get(user=user)
 
-     info=Appointments.objects.filter(doctor=data.id,reject=False,docapproval=False,recepapproval=True).values('id','firstname','lastname','age','problem','gender')
+     info=Appointments.objects.filter(doctor=data.id,reject=False,docapproval=False,recepapproval=True).values('id','firstname','lastname','age','problem','gender','registerdate','time')
 
      patient=list(info)
 
@@ -965,7 +967,6 @@ def  prescription(request):
  
      if role.title=='Doctor':  
 
-
       loads=json.loads(request.body)
 
       for i in loads:
@@ -974,7 +975,7 @@ def  prescription(request):
 
         medicine_name=i['name']
 
-        dosage=i['dose']
+        dosage=i['dose']  
         
         instruction=i['instructions']
 
@@ -986,7 +987,7 @@ def  prescription(request):
      
         else:
        
-              Prescription.objects.create(medicine_name=medicine_name,instruction=instruction,dosage=dosage,appointment_id=id,patient_id=info.patient_id)
+           Prescription.objects.create(medicine_name=medicine_name,instruction=instruction,dosage=dosage,appointment_id=id,patient_id=info.patient_id)
 
       return JsonResponse({'message':'Prescription added'},status=200)
      
@@ -1070,25 +1071,23 @@ def leftpanel(request):
  
        if role.title=='Doctor':  
 
-
-         info=Leftpanel.objects.filter(doctor=True).values('id','heading','icon')
+         info=Leftpanel.objects.filter(management=1).values('id','heading','icon')
 
          data=list(info)
 
          return JsonResponse(data,safe=False)
        
- 
        elif role.title=='Receptionist':  
 
-        info=Leftpanel.objects.filter(staff=True).values('id','heading','icon')
+        info=Leftpanel.objects.filter(management=2).values('id','heading','icon')
 
         data=list(info)
 
         return JsonResponse(data,safe=False)
     
-       elif request.user.is_authenticated:
+       elif role.title=='Patient':
 
-         info=Leftpanel.objects.filter(patient=True).values('id','heading','icon')
+         info=Leftpanel.objects.filter(management=3).values('id','heading','icon')
 
          data=list(info)
 
@@ -1133,7 +1132,6 @@ def prescriptiondata(request):
       role=Management.objects.get(user=user)
  
       if role.title=='Doctor':  
-
 
         id=request.GET.get('id')
 
@@ -1336,8 +1334,204 @@ def appointpayment(request):
     return JsonResponse({'message':'Method not allowed'},status=405)  
 
 
+#   appproval or rejection from doctor
+
+def docapproval(request):
+
+  if request.method=='PUT':
+   
+   if  request.user.is_authenticated:
+
+    user=request.user.id  
+
+    role=Management.objects.get(user=user)
+ 
+    if role.title=='Doctor':
+
+     data=json.loads(request.body)
+
+     appointid=data['id']
+
+    #  reason=data['reason']
+
+     Appointments.objects.filter(id=appointid).update(docapproval=True)
+
+     info=Appointments.objects.get(id=appointid)
+        
+     loads=Patients.objects.get(id=info.patient_id)
+ 
+     email=User.objects.get(id=loads.user_id)
+    
+     Doc=doctors.objects.get(id=loads.doctor_id)
+
+     data={
+       'Appointmentno':info.id,
+       'Firstname':info.firstname,
+       'Lastname':info.lastname,
+       'Age':info.age,
+       'Problem':info.problem,
+       'Gender':info.gender,
+       'Doctor':Doc.firstname,
+        'Time':info.registerdate
+        
+       }
+     subject='Regarding Appointment Status'
+
+     from_email=settings.EMAIL_HOST_USER
+
+     to_list=[email.email,]
+     
+     m='Your Appointment has been approved'
+
+     message=render_to_string('Management/email.html',context=data)
 
 
+     send_mail(subject,message=m,from_email=from_email,recipient_list=to_list,html_message=message,fail_silently=False)
+
+     return JsonResponse({'message':'Appointment approved'},status=200)
+    
+    else:
+
+      return JsonResponse({'message':'Not a doctor'},status=403)
+   
+   else:
+     
+     return JsonResponse({'message':'Not authenticated'},status=401) 
+   
+  else:
+
+    return JsonResponse({'message':'Method not allowed'},status=405) 
+   
+def docreject(request):
+  
+  if request.method=='PUT':
+
+   if request.user.is_authenticated:
+
+    user=request.user.id
+
+    role=Management.objects.get(user=user)
+ 
+    if role.title=='Doctor':  
+ 
+     data1=json.loads(request.body)
+
+     appointid=data1['id']
+
+     reason=data1['reason']
+
+     Appointments.objects.filter(id=appointid).update(reject=True,reason=reason)
+
+     info=Appointments.objects.get(id=appointid)
+      
+    
+     loads=Patients.objects.get(id=info.patient_id)
+
+     email=User.objects.get(id=loads.user_id)
+    
+
+     Doc=doctors.objects.get(id=loads.doctor_id)
+
+
+     data={
+       'Appointmentno':info.id,
+       'Firstname':info.firstname,
+       'Lastname':info.lastname,
+       'Age':info.age,
+       'Problem':info.problem,
+       'Gender':info.gender,
+       'Doctor':Doc.firstname,
+        'Time':info.registerdate,
+        'reason':info.reason
+       }
+     subject='Regarding Appointment Status'
+
+     from_email=settings.EMAIL_HOST_USER
+
+     to_list=[email.email,]
+     
+     m='Your Appointment has been rejected'
+
+     message=render_to_string('Management/rejection.html',context=data)
+
+
+     send_mail(subject,message=m,from_email=from_email,recipient_list=to_list,html_message=message,fail_silently=False)
+
+     return JsonResponse({'message':'Appointment rejected'},status=200)
+    
+    else:
+
+      return JsonResponse({'message':'Not a doctor'},status=403)
+   
+   else:
+     
+     return JsonResponse({'message':'Not authenticated'},status=401) 
+  
+  else:
+
+    return JsonResponse({'message':'Method not allowed'},status=405)
+
+
+def updateappoint(request):
+
+  if request.method=='PUT':
+
+     if request.user.is_authenticated:
+
+       user=request.user.id
+
+       role=Management.objects.get(user=user)
+ 
+       if role.title=='Doctor':  
+         
+         data =json.loads(request.body)
+
+         id=data['id']
+
+         date=data['date']
+
+         Time=data['time']    
+
+         info=time.objects.get(id=Time)
+
+         Appointments.objects.filter(id=id).update(registerdate=date,time=info.time)
+
+         return JsonResponse({'message':'Updated'},status=200)
+       
+       else:
+         
+         return JsonResponse({'message':'Not a doctor'},status=403)
+       
+     else:
+       
+       return JsonResponse({'message':'User is not authenticated'},status=401)
+     
+  else:
+
+      return  JsonResponse({'message':'Method not allowed'},status=405)
+  
+
+def chart(request):
+
+  if request.method=='GET':
+
+    doc=doctors.objects.all().count()
+
+    patient=Patients.objects.all().count()
+
+    appointment=Appointments.objects.all().count()
+
+    department=Speciality.objects.all().count()
+
+    data=[doc,patient,appointment,department]
+
+    return JsonResponse(data,safe=False)
+  
+  else :
+
+    return JsonResponse({'message':'Method not allowed'},status=405)
+
+    
 
 
 

@@ -47,7 +47,7 @@ INSTALLED_APPS = [
     'Management',
     'corsheaders',
     'sslserver',
-    # 'django-renderpdf',
+    
 
 ]
 CORS_ORIGIN_ALLOW_ALL = True

@@ -46,15 +46,11 @@ class time(models.Model):
 
 class Leftpanel(models.Model):
 
+    management=models.ForeignKey(Management,on_delete=models.DO_NOTHING,null=True)
+
     icon=models.CharField(max_length=200,default=True)
 
     heading=models.CharField(max_length=200)
-
-    patient=models.BooleanField(default=False)
-
-    staff=models.BooleanField(default=False)
-
-    doctor=models.BooleanField(default=False)
 
     status=models.BooleanField(default=False)
 
