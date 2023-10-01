@@ -53,12 +53,11 @@ INSTALLED_APPS = [
 CORS_ORIGIN_ALLOW_ALL = True
 CORS_ALLOW_CREDENTIALS =True
 
-AUTH_USER_MODEL = 'Management.User'
 
 SESSION_COOKIE_SECURE=True
 DCS_SESSION_COOKIE_SAMESITE = 'None'
 SECURE_SSL_REDIRECT=True
-SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
@@ -147,3 +146,5 @@ USE_TZ = False
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
 STATIC_URL = '/static/'
+
+AUTH_USER_MODEL = 'Management.User'

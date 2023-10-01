@@ -14,11 +14,19 @@ class User(AbstractUser):
 
 class Management(models.Model):
 
-    user=models.ManyToManyField(User)
+    user=models.ManyToManyField(User,through='Roles')
 
     title=models.CharField(max_length=200)
 
     status=models.BooleanField(default=False)
+
+class Roles(models.Model):
+
+    user=models.ForeignKey(User,on_delete=models.CASCADE)
+
+    management=models.ForeignKey(Management,on_delete=models.CASCADE)
+
+    status=models.BooleanField(default=False)    
 
 class Speciality(models.Model):
 

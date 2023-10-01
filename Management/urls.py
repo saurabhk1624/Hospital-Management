@@ -21,7 +21,7 @@ urlpatterns = [
     path('recepappoint/',views.recepappoint,name="recepappoint"),
     path('patientappoint/',views.patientappoint,name="patientappoint"),
     path('render_app/',views.render_app,name="render_app"),
-    path('logout/',views.logout,name="logout"),
+    path('logouut/',views.logouut,name="logouut"),
     path('department/',views.department,name="department"),
     path('doctor/',views.doctor,name="doctor"),
     path('schedule/',views.schedule,name="schedule"),
@@ -42,13 +42,8 @@ urlpatterns = [
     path('docreject/',views.docreject,name="docreject"),
     path('updateappoint/',views.updateappoint,name="updateappoint"),
     path('chart/',views.chart,name="chart"),
- 
-  
- 
- 
-
- 
-
-
+    path('luckydraw/',views.luckydraw,name="luckydraw"),
+    path('previousappointment/',views.previousappointment,name="previousappointment"),
+    
 
 ]
