@@ -14,7 +14,7 @@ from django.http import HttpResponse
 
 from django.template.loader import render_to_string
 
-from django_renderpdf.helpers import render_pdf
+from django_renderpdf import helpers
 
 from django.core.mail import send_mail
 
@@ -947,7 +947,7 @@ def render_app(request):
 
      response["Content-Disposition"] = 'attachment; filename="Appointment.pdf"'
 
-     render_pdf(
+     helpers.render_pdf(
             template=template,
             file_=response,
             context=data,
@@ -1294,7 +1294,7 @@ def paymentpdf(request):
 
         response["Content-Disposition"] = 'attachement; filename="Payment.pdf"'
 
-        render_pdf(
+        helpers.render_pdf(
              template=template,
             file_=response,
             context=context,
@@ -1639,7 +1639,7 @@ def previousappointment(request):
                    print(patient)
 
 
-                   info=Appointments.objects.filter(patient_id=patient.patient_id).values('id','firstname','lastname','registerdate')
+                   info=Appointments.objects.filter(patient_id=patient.id).values('id','firstname','lastname','registerdate')
 
                    data=list(info)
 
