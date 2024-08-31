@@ -1,0 +1,39 @@
+services:
+  hospitaldjango:
+    container_name: hospitaldjango
+    build:
+      context: .
+    ports:
+      - '8009:8000'
+    command: /bin/sh -c "pip install -r requirements.txt && while sleep 1000; do :; done"
+    links:
+      - hmssql
+    depends_on:
+      - hmssql
+    volumes:
+      - ../:/Hospital
+  hmssql:
+    image: mysql:8
+    container_name: hospitalsql
+    environment:
+      MYSQL_ROOT_PASSWORD: my-secret-pw
+      MYSQL_DATABASE: mysql
+    ports:
+      - 3310:3306
+    # volumes:
+    #   - mydb:/var/lib/mysql
+
+
+  hospitalphp:
+    image: phpmyadmin/phpmyadmin
+    container_name: hospitalphpmyadmin
+    environment:
+      PMA_HOST: hmssql
+      PMA_PORT: 3306
+      MYSQL_ROOT_PASSWORD: my-secret-pw
+    ports:
+      - 100:80
+    links:
+      - hmssql
+    depends_on:
+      - hmssql
